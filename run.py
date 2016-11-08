@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from numpy import random
+import pandas
 from psychopy import visual, core, sound, gui
 from unipath import Path
 
@@ -18,9 +20,10 @@ DATA_FILE = Path(DATA_DIR, '{subj_id}.csv')
 
 
 class Experiment(object):
+
     def __init__(self, subject):
         self.subject = subject
-        self.trials = Trials()
+        self.trials = Trials(**subject)
 
     def run(self):
         """Run the experiment."""
@@ -57,14 +60,43 @@ class Experiment(object):
 
 
 class Trials(object):
-    def __init__(self):
+    messages = pandas.read_csv('stimuli/messages.csv')
+
+    def __init__(self, seed=None, **kwargs):
+        self.random = random.RandomState(seed=seed)
+        self._seeds = None
+        self._words = None
+
+    @property
+    def seeds(self):
+        if self._seeds is None:
+            seeds = (self.messages[['word_category', 'seed_id']]
+                         .drop_duplicates())
+
+            blocks = [1, 2, 3, 4]
+            def assign_block(chunk):
+                block_ix = self.random.choice(blocks, size = len(chunk),
+                                              replace = False)
+                chunk.insert(0, 'block_ix', block_ix)
+                return chunk
+
+            seeds = seeds.groupby('word_category').apply(assign_block)
+            self._seeds = (seeds.sort(['block_ix', 'word_category', 'seed_id'])
+                                .reset_index(drop=True))
+
+        return self._seeds
+
+    @property
+    def words(self):
+        pass
+
+
+    @property
+    def words(self):
         pass
 
     def blocks(self):
-        blocks = [block.itertuples()
-                  for _, block in self.trials.groupby('category')]
-        self.random.shuffle(blocks)
-        return blocks
+        pass
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ from run import Trials
 @task
 def select_sounds(ctx):
     """Select the sounds to use in this experiment."""
-    ctx.run('Rscript R/select_messages.R')
+    ctx.run('Rscript --vanilla R/select_messages.R')
 
 @task
 def copy_sounds(ctx):
@@ -28,5 +28,6 @@ def copy_sounds(ctx):
             Path(src_dir, seed_name).copy(dst)
 
 @task
-def create_sample_trials(ctx):
-    return Trials().trials.to_csv(sys.stdout, index=False)
+def create_trials(ctx):
+    """Create a sample trial list."""
+    Trials().trials.to_csv('sample_trials.csv', index=False)

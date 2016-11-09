@@ -13,8 +13,9 @@ except ImportError:
     print 'pygame not found! can\'t use gamepad'
 
 
-DATA_COLS = ('subj_id date experimenter computer block_ix trial_ix sound word '
-             'response correct_response rt').split()
+DATA_COLS = ('subj_id date experimenter computer block_ix trial_ix '
+             'sound_id sound_category word word_category correct_response '
+             'response rt is_correct').split()
 DATA_FILE = 'data/{subj_id}.csv'
 
 
@@ -25,13 +26,14 @@ class Experiment(object):
         self.session = subject.copy()
         self.session['date'] = data.getDateStr()
         self.session['computer'] = socket.gethostname()
+
         self.trials = Trials(**subject)
         self.load_sounds('stimuli/sounds')
         self.feedback = {0: sound.Sound('stimuli/feedback/buzz.wav'),
                          1: sound.Sound('stimuli/feedback/bleep.wav')}
         self.texts = yaml.load(open('texts.yaml'))
         self.device = ResponseDevice(gamepad=None,
-                                     keyboard=dict(y='yes', n='no'))
+                                     keyboard=dict(y=1, n=0))
 
         data_dir = Path(DATA_FILE.format(**subject)).parent
         if not data_dir.isdir():
@@ -45,8 +47,12 @@ class Experiment(object):
         self.show_instructions()
 
         for block in self.trials.blocks():
-            self.run_block(block)
-            self.show_break_screen()
+            try:
+                self.run_block(block)
+            except QuitExperiment:
+                break
+            else:
+                self.show_break_screen()
 
         self.data_file.close()
         core.quit()
@@ -58,7 +64,6 @@ class Experiment(object):
     def run_block(self, block):
         """Run a block of trials."""
         for trial in block:
-            print 'Running trial', trial
             self.run_trial(trial)
 
     def run_trial(self, trial):
@@ -102,10 +107,20 @@ class Experiment(object):
         self.show_text_screen(title=title, body=body)
 
     def show_text_screen(self, title, body):
-        visual.TextStim(self.win, title).draw()
-        visual.TextStim(self.win, body).draw()
+        text_kwargs = dict(win=self.win, font='Consolas',
+                           wrapWidth=self.win.size[0] * 0.7)
+        gap = 80
+        title_y = self.win.size[1]/2 - gap
+        visual.TextStim(text=title, alignVert='top',
+                        pos=[0, title_y], height=30, bold=True,
+                        **text_kwargs).draw()
+        visual.TextStim(text=body, alignVert='top', height=20,
+                        pos=[0, title_y-gap],
+                        **text_kwargs).draw()
         self.win.flip()
-        event.waitKeys()
+        response = event.waitKeys()[0]
+        if response == 'q':
+            raise QuitExperiment
 
     def write_trial(self, **trial_data):
         data = self.session.copy()
@@ -124,13 +139,26 @@ class Experiment(object):
 
 
 class Trials(object):
-    messages = pandas.read_csv('stimuli/messages.csv')
-
     def __init__(self, seed=None, **kwargs):
         self.random = random.RandomState(seed=seed)
-        blocks = self.assign_seeds_by_block()
-        words = self.assign_words()
-        self.trials = self.generate_trials(blocks, words)
+        self._messages = None
+        self._trials = None
+
+    @property
+    def messages(self):
+        """All eligible messages that could be tested in this experiment."""
+        if self._messages is None:
+            self._messages = pandas.read_csv('stimuli/messages.csv')
+        return self._messages
+
+    @property
+    def trials(self):
+        """Trials generated for an individual participant."""
+        if self._trials is None:
+            blocks = self.assign_seeds_by_block()
+            words = self.assign_words()
+            self._trials = self.generate_trials(blocks, words)
+        return self._trials
 
     def assign_seeds_by_block(self):
         """Assign seeds of the same category to different blocks.
@@ -138,7 +166,7 @@ class Trials(object):
         There are 4 categories of 4 seed messages to divide among
         4 blocks, as each block has a single seed from each category.
         """
-        seeds = (self.messages[['category', 'seed_id']]
+        seeds = (self.messages[['seed_id', 'category']]
                      .drop_duplicates()
                      .rename(columns={'category': 'seed_category'}))
 
@@ -154,14 +182,18 @@ class Trials(object):
                      .reset_index(drop=True))
 
     def assign_words(self):
-        return (self.messages[['seed_id', 'category', 'word']]
-                    .drop_duplicates()
-                    .rename(columns={'category': 'word_category'})
+        """Assign a single word to learn for each category.
+
+        Each participant learns the meaning of 4 different words,
+        one for each category, over the course of 4 blocks of trials.
+        """
+        return (self.messages.rename(columns={'category': 'word_category'})
                     .groupby('word_category')
                     .apply(lambda x: x.sample(1, random_state=self.random))
                     .reset_index(drop=True))
 
     def generate_trials(self, blocks, words):
+        """Generate correct and incorrect response trials for each block."""
         n_sound_rep = 4     # Number of times each sound is heard in a block
         prop_correct = 0.5  # Proportion trials for which 'yes' is correct
 
@@ -187,6 +219,7 @@ class Trials(object):
         trials['word'] = trials.apply(determine_word, axis=1)
         trials = trials.merge(words[['word', 'word_category']])
 
+        # Create trial ix and shuffle within blocks
         def shuffle_trial_ix(block):
             ixs = block.trial_ix.tolist()
             self.random.shuffle(ixs)
@@ -208,6 +241,17 @@ class Trials(object):
 
 
 class ResponseDevice(object):
+    """Provides a common interface for both gamepad and keyboard responses.
+
+    When a response device is created, it tries to use the gamepad, but if
+    a gamepad cannot be found, it will fall back to using the keyboard.
+    Response data is provided as a dict.
+
+    >>> device = ResponseDevice(gamepad={6: 'yes', 7: 'no'},
+                                keyboard={'y': 'yes', 'n': 'no'})
+    >>> device.get_response()  # tries to use gamepad, otherwise uses keyboard
+    {'rt': 1323, 'response': 'yes'}
+    """
     def __init__(self, gamepad=None, keyboard=None):
         self.stick = None
         self.gamepad = gamepad
@@ -261,7 +305,11 @@ class ResponseDevice(object):
         key, rt = event.waitKeys(keyList=self.keyboard.keys(),
                                  timeStamped=self.timer)[0]
         response = self.keyboard[key]
-        return dict(response=response, rt=rt * 1000)
+        return dict(response=response, rt=rt*1000)
+
+
+class QuitExperiment(Exception):
+    pass
 
 
 if __name__ == '__main__':

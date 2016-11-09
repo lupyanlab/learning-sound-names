@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+import socket
+
 from numpy import random
 import pandas
-from psychopy import visual, core, sound, gui, logging
+from psychopy import visual, core, sound, gui, logging, data
 from unipath import Path
 import yaml
 
@@ -11,7 +13,7 @@ except ImportError:
     print 'pygame not found! can\'t use gamepad'
 
 
-DATA_COLS = ('subj_id exp_start block_ix trial_ix sound word '
+DATA_COLS = ('subj_id date experimenter computer block_ix trial_ix sound word '
              'response correct_response rt').split()
 DATA_FILE = 'data/{subj_id}.csv'
 
@@ -21,6 +23,8 @@ class Experiment(object):
 
     def __init__(self, subject):
         self.session = subject.copy()
+        self.session['date'] = data.getDateStr()
+        self.session['computer'] = socket.gethostname()
         self.trials = Trials(**subject)
         self.load_sounds('stimuli/sounds')
         self.texts = yaml(open('texts.yaml'))
@@ -76,33 +80,33 @@ class Experiment(object):
 
         # End trial
         self.win.flip()
+        response.update(trial._asdict())  # combine response and trial data
         self.write_trial(**response)
 
     def show_instructions(self):
-        instructions = visual.TextStim(self.win, self.texts['instructions'])
-        instructions.draw()
+        self.show_text_screen(title=self.texts['title'],
+                              body=self.texts['instructions'])
+
+    def show_break_screen(self):
+        title = "Take a break!"
+        body = ("Take a quick break. When you are ready to continue, "
+                "press the SPACEBAR.")
+        self.show_text_screen(title=title, body=body)
+
+    def show_text_screen(self, title, body):
+        visual.TextStim(self.win, title).draw()
+        visual.TextStim(self.win, body).draw()
         self.win.flip()
         event.waitKeys()
 
-    def show_break_screen(self):
-        pass
-
     def write_trial(self, **trial_data):
         data = self.session.copy()
-        if not trial_data:
-            row = self.DATA_COLS  # write header for data file
-        else:
+        if trial_data:
             data.update(trial_data)
-            row = []
-            for name in self.DATA_COLS:
-                value = data.get(name, '')
-                if not value:
-                    logging.warning('Data for col {} not found'.format(name))
-                row.append(value)
+            row = [data.get(name, '') for name in DATA_COLS]
+        else:
+            row = DATA_COLS  # write header
 
-            for x in trial_data:
-                if x not in self.DATA_COLS:
-                    logging.warning('Data for {} not saved'.format(x))
         self.data_file.write(','.join(map(str, row))+'\n')
 
     def load_sounds(self, sounds_dir):
@@ -204,6 +208,6 @@ class ResponseDevice(object):
 
 
 if __name__ == '__main__':
-    subj = dict(subj_id='test', seed=100)
+    subj = dict(subj_id='test', experimenter='test', seed=100)
     exp = Experiment(subj)
     exp.run()

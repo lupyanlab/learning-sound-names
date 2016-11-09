@@ -155,9 +155,10 @@ class ResponseDevice(object):
 
         try:
             self.stick = pygame.joystick.init()
-    		self.stick = pygame.joystick.Joystick(0)
-    		self.stick.init()
-    	except pygame.error:
+            self.stick = pygame.joystick.Joystick(0)
+            self.stick.init()
+        except:
+            print 'unable to init joystick with pygame'
             self.stick = None
 
     def get_response(self):
@@ -167,39 +168,39 @@ class ResponseDevice(object):
             return self.get_keyboard_response()
 
     def get_gamepad_response(self):
-    	responded = False
+        responded = False
         response, rt = '*', '*'
 
         pygame.event.clear()
-    	self.timer.reset()
+        self.timer.reset()
 
         while not responded:
-    		for event in pygame.event.get():
-    			if event.type in [pygame.JOYBUTTONDOWN, pygame.JOYHATMOTION]:
-    				button = self._get_joystick_responses()
-    				if response in self.gamepad:
+            for event in pygame.event.get():
+                if event.type in [pygame.JOYBUTTONDOWN, pygame.JOYHATMOTION]:
+                    button = self._get_joystick_responses()
+                    if button in self.gamepad:
                         response = self.gamepad[button]
-    					rt =  self.timer.getTime()
-    					responded = True
-    					break
+                        rt =  self.timer.getTime() * 1000
+                        responded = True
+                        break
 
-    	return (response, rt)
+        return (response, rt)
 
     def _get_joystick_responses(self):
-    	for n in range(self.stick.get_numbuttons()):
-    		if self.stick.get_button(n):
-    			return n
-    	for n in range(self.stick.get_numhats()):
-    		return self.stick.get_hat(n)
+        for n in range(self.stick.get_numbuttons()):
+            if self.stick.get_button(n):
+                return n
+        for n in range(self.stick.get_numhats()):
+            return self.stick.get_hat(n)
 
     def get_keyboard_response(self):
-    	responded = False
+        responded = False
         response, rt = '*', '*'
         self.timer.reset()
         key, rt = event.waitKeys(self.keyboard.keys(),
                                  timeStamped=self.timer)[0]
         response = self.keyboard[key]
-        return (response, rt)
+        return (response, rt * 1000)
 
 
 if __name__ == '__main__':

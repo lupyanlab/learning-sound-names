@@ -1,34 +1,41 @@
 #!/usr/bin/env python
 from numpy import random
 import pandas
-from psychopy import visual, core, sound, gui
+from psychopy import visual, core, sound, gui, logging
 from unipath import Path
+import yaml
 
+try:
+    import pygame
+except ImportError:
+    print 'pygame not found! can\'t use gamepad'
 
-TITLE = "Learn the names of different sounds"
-INSTRUCTIONS = """\
-"""
-BREAK = ""
 
 DATA_COLS = ('subj_id exp_start block_ix trial_ix sound word '
              'response correct_response rt').split()
-
-DATA_DIR = Path('data')
-if not DATA_DIR.isdir():
-    DATA_DIR.mkdir()
-DATA_FILE = Path(DATA_DIR, '{subj_id}.csv')
+DATA_FILE = 'data/{subj_id}.csv'
 
 
 class Experiment(object):
+    delay_sec = 0.6
 
     def __init__(self, subject):
-        self.subject = subject
+        self.session = subject.copy()
         self.trials = Trials(**subject)
-        self.sounds = load_sounds('stimuli/sounds')
+        self.load_sounds('stimuli/sounds')
+        self.texts = yaml(open('texts.yaml'))
+        self.device = ResponseDevice(gamepad=None,
+                                     keyboard=dict(y='yes', n='no'))
+
+        data_dir = Path(DATA_FILE.format(**subject)).parent
+        if not data_dir.isdir():
+            data_dir.mkdir()
         self.data_file = open(DATA_FILE.format(**subject), 'w', 0)
+        self.write_trial()  # write header
 
     def run(self):
         """Run the experiment."""
+        self.setup_window()
         self.show_instructions()
 
         for block in self.trials.blocks():
@@ -38,6 +45,10 @@ class Experiment(object):
         self.data_file.close()
         core.quit()
 
+    def setup_window(self):
+        self.win = visual.Window()
+        self.word = visual.TextStim(self.win)
+
     def run_block(self, block):
         """Run a block of trials."""
         for trial in block:
@@ -45,20 +56,59 @@ class Experiment(object):
 
     def run_trial(self, trial):
         """Run a single trial."""
+        self.word.setText(trial.word)
+        sound_duration = self.sounds[trial.sound].getDuration()
+
+        # Start trial
+        self.win.flip()
+
         # Play sound
-        # Show word
-        # Get response
-        response = dict()
+        self.sounds[trial.sound].play()
+        core.wait(sound_duration)
+
+        # Delay between sound offset and word onset
+        core.wait(self.delay_sec)
+
+        # Show word and get response
+        self.word.draw()
+        self.win.flip()
+        response = self.device.get_response()
+
+        # End trial
+        self.win.flip()
         self.write_trial(**response)
 
     def show_instructions(self):
-        pass
+        instructions = visual.TextStim(self.win, self.texts['instructions'])
+        instructions.draw()
+        self.win.flip()
+        event.waitKeys()
 
     def show_break_screen(self):
         pass
 
-    def write_trial(self, **response):
-        pass
+    def write_trial(self, **trial_data):
+        data = self.session.copy()
+        if not trial_data:
+            row = self.DATA_COLS  # write header for data file
+        else:
+            data.update(trial_data)
+            row = []
+            for name in self.DATA_COLS:
+                value = data.get(name, '')
+                if not value:
+                    logging.warning('Data for col {} not found'.format(name))
+                row.append(value)
+
+            for x in trial_data:
+                if x not in self.DATA_COLS:
+                    logging.warning('Data for {} not saved'.format(x))
+        self.data_file.write(','.join(map(str, row))+'\n')
+
+    def load_sounds(self, sounds_dir):
+        self.sounds = {}
+        for snd in Path(sounds_dir).listdir('*.wav'):
+            self.sounds[snd.name] = sound.Sound(snd)
 
 
 class Trials(object):
@@ -93,19 +143,66 @@ class Trials(object):
             return selected
 
         seeds['word'] = seeds.seed_id.apply(assign_word)
-
         self.seeds = seeds
 
 
-def load_sounds(sounds_dir):
-    """Create a dict of sound_name -> sound_obj."""
-    sounds = {}
-    for snd in Path(sounds_dir).listdir('*.wav'):
-        sounds[snd.name] = sound.Sound(snd)
-    return sounds
+class ResponseDevice(object):
+    def __init__(self, gamepad=None, keyboard=None):
+        self.stick = None
+        self.gamepad = gamepad
+        self.keyboard = keyboard
+        self.timer = core.Clock()
+
+        try:
+            self.stick = pygame.joystick.init()
+    		self.stick = pygame.joystick.Joystick(0)
+    		self.stick.init()
+    	except pygame.error:
+            self.stick = None
+
+    def get_response(self):
+        if self.stick:
+            return self.get_gamepad_response()
+        else:
+            return self.get_keyboard_response()
+
+    def get_gamepad_response(self):
+    	responded = False
+        response, rt = '*', '*'
+
+        pygame.event.clear()
+    	self.timer.reset()
+
+        while not responded:
+    		for event in pygame.event.get():
+    			if event.type in [pygame.JOYBUTTONDOWN, pygame.JOYHATMOTION]:
+    				button = self._get_joystick_responses()
+    				if response in self.gamepad:
+                        response = self.gamepad[button]
+    					rt =  self.timer.getTime()
+    					responded = True
+    					break
+
+    	return (response, rt)
+
+    def _get_joystick_responses(self):
+    	for n in range(self.stick.get_numbuttons()):
+    		if self.stick.get_button(n):
+    			return n
+    	for n in range(self.stick.get_numhats()):
+    		return self.stick.get_hat(n)
+
+    def get_keyboard_response(self):
+    	responded = False
+        response, rt = '*', '*'
+        self.timer.reset()
+        key, rt = event.waitKeys(self.keyboard.keys(),
+                                 timeStamped=self.timer)[0]
+        response = self.keyboard[key]
+        return (response, rt)
 
 
 if __name__ == '__main__':
-    subj = dict(name='test')
+    subj = dict(subj_id='test', seed=100)
     exp = Experiment(subj)
     exp.run()

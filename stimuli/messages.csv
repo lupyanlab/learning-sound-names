@@ -1,4 +1,4 @@
-"version","subj_id","seed_id","message_id","word","word_category","question_type","choice_id","choice_category","is_correct","generation","question_c","question_label","message_type","message_label","message_c","version_label","is_outlier","chance","is_better_than_chance"
+"version","subj_id","seed_id","message_id","word","category","question_type","choice_id","choice_category","is_correct","generation","question_c","question_label","message_type","message_label","message_c","version_label","is_outlier","chance","is_better_than_chance"
 "pilot","A002160837SWJFPIAI7L7",41,522,"sheah","tear","category",34,"glass",0,7,0.5,"Category match","last_gen_imitation","Last gen imitation",0.5,"Pilot",FALSE,0.25,TRUE
 "pilot","A002160837SWJFPIAI7L7",47,377,"veep","zipper","exact",47,"zipper",1,5,-0.5,"Category match
 (true seed)","last_gen_imitation","Last gen imitation",0.5,"Pilot",FALSE,0.25,TRUE

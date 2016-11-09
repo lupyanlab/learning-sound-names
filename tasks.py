@@ -1,3 +1,5 @@
+import sys
+
 from invoke import task
 from unipath import Path
 
@@ -24,3 +26,7 @@ def copy_sounds(ctx):
         dst = Path(dst_dir, seed_name)
         if not dst.exists():
             Path(src_dir, seed_name).copy(dst)
+
+@task
+def create_sample_trials(ctx):
+    return Trials().trials.to_csv(sys.stdout, index=False)

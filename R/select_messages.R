@@ -43,6 +43,7 @@ ggplot(message_means, aes(x = message_label, y = is_correct)) +
              position = position_jitterdodge(jitter.width = 0.1, dodge.width = 0.5))
 
 selected <- transcription_matches %>%
-  filter(is_better_than_chance == 1)
+  filter(is_better_than_chance == 1) %>%
+  rename(category = word_category)
 
 write.csv(selected, "stimuli/messages.csv", row.names = FALSE)

@@ -128,73 +128,79 @@ class Trials(object):
 
     def __init__(self, seed=None, **kwargs):
         self.random = random.RandomState(seed=seed)
+        blocks = self.assign_seeds_by_block()
+        words = self.assign_words()
+        self.trials = self.generate_trials(blocks, words)
 
-        # Assign seeds of the same category to different blocks
+    def assign_seeds_by_block(self):
+        """Assign seeds of the same category to different blocks.
+
+        There are 4 categories of 4 seed messages to divide among
+        4 blocks, as each block has a single seed from each category.
+        """
+        seeds = (self.messages[['category', 'seed_id']]
+                     .drop_duplicates()
+                     .rename(columns={'category': 'seed_category'}))
+
         block_ixs = [1, 2, 3, 4]
         def assign_block(chunk):
-            block_ix = self.random.choice(block_ixs, size=len(chunk),
-                                          replace=False)
-            chunk.insert(0, 'block_ix', block_ix)
+            ix = self.random.choice(block_ixs, size=len(chunk), replace=False)
+            chunk.insert(0, 'block_ix', ix)
             return chunk
 
-        blocks = (self.messages[['word_category', 'seed_id']]
-                      .drop_duplicates()
-                      .groupby('word_category')
-                      .apply(assign_block)
-                      .sort_values(['block_ix', 'word_category', 'seed_id'])
-                      .reset_index(drop=True))
+        return (seeds.groupby('seed_category')
+                     .apply(assign_block)
+                     .sort_values(['block_ix', 'seed_category', 'seed_id'])
+                     .reset_index(drop=True))
 
-        # Assign words to learn
-        words = self.messages[['seed_id', 'word']].drop_duplicates()
-        def assign_word(seed_id):
-            available_ix = words.index[words.seed_id == seed_id].tolist()
-            selected_ix = self.random.choice(available_ix, size=1,
-                                             replace=False)
-            selected = words.ix[selected_ix, 'word'].squeeze()
-            words.drop(selected_ix, inplace=True)
-            return selected
+    def assign_words(self):
+        return (self.messages[['seed_id', 'category', 'word']]
+                    .drop_duplicates()
+                    .rename(columns={'category': 'word_category'})
+                    .groupby('word_category')
+                    .apply(lambda x: x.sample(1, random_state=self.random))
+                    .reset_index(drop=True))
 
-        blocks['word'] = blocks.seed_id.apply(assign_word)
+    def generate_trials(self, blocks, words):
+        n_sound_rep = 4     # Number of times each sound is heard in a block
+        prop_correct = 0.5  # Proportion trials for which 'yes' is correct
 
-        n_sound_rep = 4  # number of times each sound is heard in a block
-        prop_correct = 0.5
-        def generate_trials_by_block(block):
-            trials = pandas.concat([block] * n_sound_rep, ignore_index=True)
-            trials['correct_response'] = \
-                self.random.choice([1, 0], size=len(trials),
-                                   p=[prop_correct, 1-prop_correct])
+        # Begin by making trials as long as necessary
+        trials = pandas.concat([blocks] * n_sound_rep, ignore_index=True)
 
-            def determine_word(trial):
-                block_words = block.word.tolist()
-                if trial.correct_response:
-                    return trial.word
-                else:
-                    block_words.remove(trial.word)
-                    return self.random.choice(block_words, size=1)[0]
+        # Randomly decide whether the trial is correct or incorrect
+        trials['correct_response'] = \
+            self.random.choice([1, 0], size=len(trials),
+                               p=[prop_correct, 1-prop_correct])
 
-            trials['word'] = trials.apply(determine_word, axis=1)
-            return trials
+        # Assign a word for each trial based on desired correctness
+        def determine_word(trial):
+            if trial.correct_response:
+                options = words.word_category == trial.seed_category
+            else:
+                options = words.word_category != trial.seed_category
 
-        trials = (blocks.groupby('block_ix', as_index=False)
-                        .apply(generate_trials_by_block)
-                        .reset_index(drop=True))
+            return (words.ix[options, 'word']
+                         .sample(1, random_state=self.random)
+                         .squeeze())
+
+        trials['word'] = trials.apply(determine_word, axis=1)
+        trials = trials.merge(words[['word', 'word_category']])
+
+        def shuffle_trial_ix(block):
+            ixs = block.trial_ix.tolist()
+            self.random.shuffle(ixs)
+            block['trial_ix'] = ixs
+            return block
+
+        trials = trials.sort_values('block_ix')
         trials.insert(1, 'trial_ix', range(1, len(trials) + 1))
-
-        def shuffle_trial_ix(chunk):
-            trial_ix = chunk.trial_ix.tolist()
-            self.random.shuffle(trial_ix)
-            chunk['trial_ix'] = trial_ix
-            return chunk
-
         trials = (trials.groupby('block_ix')
                         .apply(shuffle_trial_ix)
                         .sort_values(['block_ix', 'trial_ix'])
                         .reset_index(drop=True))
 
-        trials.rename(columns={'seed_id': 'sound'}, inplace=True)
-        trials['sound'] = trials.sound.apply(lambda x: '{}.wav'.format(x))
-
-        self.trials = trials
+        return trials
 
     def blocks(self):
         for _, block in self.trials.groupby('block_ix'):

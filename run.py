@@ -24,7 +24,7 @@ class Experiment(object):
     def __init__(self, subject):
         self.subject = subject
         self.trials = Trials(**subject)
-        sounds = load_sounds('stimuli/sounds')
+        self.sounds = load_sounds('stimuli/sounds')
         self.data_file = open(DATA_FILE.format(**subject), 'w', 0)
 
     def run(self):

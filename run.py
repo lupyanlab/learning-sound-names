@@ -24,6 +24,8 @@ class Experiment(object):
     def __init__(self, subject):
         self.subject = subject
         self.trials = Trials(**subject)
+        sounds = load_sounds('stimuli/sounds')
+        self.data_file = open(DATA_FILE.format(**subject), 'w', 0)
 
     def run(self):
         """Run the experiment."""
@@ -64,39 +66,43 @@ class Trials(object):
 
     def __init__(self, seed=None, **kwargs):
         self.random = random.RandomState(seed=seed)
-        self._seeds = None
-        self._words = None
 
-    @property
-    def seeds(self):
-        if self._seeds is None:
-            seeds = (self.messages[['word_category', 'seed_id']]
-                         .drop_duplicates())
+        blocks = [1, 2, 3, 4]
+        def assign_block(chunk):
+            block_ix = self.random.choice(blocks, size=len(chunk),
+                                          replace=False)
+            chunk.insert(0, 'block_ix', block_ix)
+            return chunk
 
-            blocks = [1, 2, 3, 4]
-            def assign_block(chunk):
-                block_ix = self.random.choice(blocks, size = len(chunk),
-                                              replace = False)
-                chunk.insert(0, 'block_ix', block_ix)
-                return chunk
+        seeds = (self.messages[['word_category', 'seed_id']]
+                     .drop_duplicates()
+                     .groupby('word_category')
+                     .apply(assign_block)
+                     .sort(['block_ix', 'word_category', 'seed_id'])
+                     .reset_index(drop=True))
 
-            seeds = seeds.groupby('word_category').apply(assign_block)
-            self._seeds = (seeds.sort(['block_ix', 'word_category', 'seed_id'])
-                                .reset_index(drop=True))
+        words = (self.messages[['seed_id', 'word']]
+                     .drop_duplicates())
 
-        return self._seeds
+        def assign_word(seed_id):
+            available_ix = words.index[words.seed_id == seed_id].tolist()
+            selected_ix = self.random.choice(available_ix, size=1,
+                                             replace=False)
+            selected = words.ix[selected_ix, 'word'].squeeze()
+            words.drop(selected_ix, inplace=True)
+            return selected
 
-    @property
-    def words(self):
-        pass
+        seeds['word'] = seeds.seed_id.apply(assign_word)
+
+        self.seeds = seeds
 
 
-    @property
-    def words(self):
-        pass
-
-    def blocks(self):
-        pass
+def load_sounds(sounds_dir):
+    """Create a dict of sound_name -> sound_obj."""
+    sounds = {}
+    for snd in Path(sounds_dir).listdir('*.wav'):
+        sounds[snd.name] = sound.Sound(snd)
+    return sounds
 
 
 if __name__ == '__main__':

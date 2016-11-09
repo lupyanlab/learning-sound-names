@@ -3,7 +3,7 @@ import socket
 
 from numpy import random
 import pandas
-from psychopy import visual, core, sound, gui, logging, data
+from psychopy import visual, event, core, sound, gui, logging, data
 from unipath import Path
 import yaml
 
@@ -27,7 +27,9 @@ class Experiment(object):
         self.session['computer'] = socket.gethostname()
         self.trials = Trials(**subject)
         self.load_sounds('stimuli/sounds')
-        self.texts = yaml(open('texts.yaml'))
+        self.feedback = {0: sound.Sound('stimuli/feedback/buzz.wav'),
+                         1: sound.Sound('stimuli/feedback/bleep.wav')}
+        self.texts = yaml.load(open('texts.yaml'))
         self.device = ResponseDevice(gamepad=None,
                                      keyboard=dict(y='yes', n='no'))
 
@@ -56,6 +58,7 @@ class Experiment(object):
     def run_block(self, block):
         """Run a block of trials."""
         for trial in block:
+            print 'Running trial', trial
             self.run_trial(trial)
 
     def run_trial(self, trial):
@@ -77,6 +80,11 @@ class Experiment(object):
         self.word.draw()
         self.win.flip()
         response = self.device.get_response()
+
+        # Evaluate response
+        is_correct = response['response'] == trial.correct_response
+        self.feedback[is_correct].play()
+        response['is_correct'] = is_correct
 
         # End trial
         self.win.flip()
@@ -121,23 +129,23 @@ class Trials(object):
     def __init__(self, seed=None, **kwargs):
         self.random = random.RandomState(seed=seed)
 
-        blocks = [1, 2, 3, 4]
+        # Assign seeds of the same category to different blocks
+        block_ixs = [1, 2, 3, 4]
         def assign_block(chunk):
-            block_ix = self.random.choice(blocks, size=len(chunk),
+            block_ix = self.random.choice(block_ixs, size=len(chunk),
                                           replace=False)
             chunk.insert(0, 'block_ix', block_ix)
             return chunk
 
-        seeds = (self.messages[['word_category', 'seed_id']]
-                     .drop_duplicates()
-                     .groupby('word_category')
-                     .apply(assign_block)
-                     .sort(['block_ix', 'word_category', 'seed_id'])
-                     .reset_index(drop=True))
+        blocks = (self.messages[['word_category', 'seed_id']]
+                      .drop_duplicates()
+                      .groupby('word_category')
+                      .apply(assign_block)
+                      .sort_values(['block_ix', 'word_category', 'seed_id'])
+                      .reset_index(drop=True))
 
-        words = (self.messages[['seed_id', 'word']]
-                     .drop_duplicates())
-
+        # Assign words to learn
+        words = self.messages[['seed_id', 'word']].drop_duplicates()
         def assign_word(seed_id):
             available_ix = words.index[words.seed_id == seed_id].tolist()
             selected_ix = self.random.choice(available_ix, size=1,
@@ -146,8 +154,51 @@ class Trials(object):
             words.drop(selected_ix, inplace=True)
             return selected
 
-        seeds['word'] = seeds.seed_id.apply(assign_word)
-        self.seeds = seeds
+        blocks['word'] = blocks.seed_id.apply(assign_word)
+
+        n_sound_rep = 4  # number of times each sound is heard in a block
+        prop_correct = 0.5
+        def generate_trials_by_block(block):
+            trials = pandas.concat([block] * n_sound_rep, ignore_index=True)
+            trials['correct_response'] = \
+                self.random.choice([1, 0], size=len(trials),
+                                   p=[prop_correct, 1-prop_correct])
+
+            def determine_word(trial):
+                block_words = block.word.tolist()
+                if trial.correct_response:
+                    return trial.word
+                else:
+                    block_words.remove(trial.word)
+                    return self.random.choice(block_words, size=1)[0]
+
+            trials['word'] = trials.apply(determine_word, axis=1)
+            return trials
+
+        trials = (blocks.groupby('block_ix', as_index=False)
+                        .apply(generate_trials_by_block)
+                        .reset_index(drop=True))
+        trials.insert(1, 'trial_ix', range(1, len(trials) + 1))
+
+        def shuffle_trial_ix(chunk):
+            trial_ix = chunk.trial_ix.tolist()
+            self.random.shuffle(trial_ix)
+            chunk['trial_ix'] = trial_ix
+            return chunk
+
+        trials = (trials.groupby('block_ix')
+                        .apply(shuffle_trial_ix)
+                        .sort_values(['block_ix', 'trial_ix'])
+                        .reset_index(drop=True))
+
+        trials.rename(columns={'seed_id': 'sound'}, inplace=True)
+        trials['sound'] = trials.sound.apply(lambda x: '{}.wav'.format(x))
+
+        self.trials = trials
+
+    def blocks(self):
+        for _, block in self.trials.groupby('block_ix'):
+            yield block.itertuples()
 
 
 class ResponseDevice(object):
@@ -188,7 +239,7 @@ class ResponseDevice(object):
                         responded = True
                         break
 
-        return (response, rt)
+        return dict(response=response, rt=rt)
 
     def _get_joystick_responses(self):
         for n in range(self.stick.get_numbuttons()):
@@ -201,10 +252,10 @@ class ResponseDevice(object):
         responded = False
         response, rt = '*', '*'
         self.timer.reset()
-        key, rt = event.waitKeys(self.keyboard.keys(),
+        key, rt = event.waitKeys(keyList=self.keyboard.keys(),
                                  timeStamped=self.timer)[0]
         response = self.keyboard[key]
-        return (response, rt * 1000)
+        return dict(response=response, rt=rt * 1000)
 
 
 if __name__ == '__main__':

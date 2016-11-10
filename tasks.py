@@ -6,10 +6,19 @@ from unipath import Path
 from run import Trials
 
 
-@task
-def select_sounds(ctx):
+@task(help=dict(install='(Re)install the wordsintransition pkg first.'))
+def select_sounds(ctx, install=False, keep=None):
     """Select the sounds to use in this experiment."""
+    if install:
+        R_cmd = 'devtools::install_github("lupyanlab/words-in-transition", subdir = "wordsintransition")'
+        ctx.run("Rscript -e '{}'".format(R_cmd))
+
     ctx.run('Rscript R/select_messages.R')
+
+    if not keep:
+        ctx.run('rm -f Rplots.pdf')
+    else:
+        ctx.run('mv Rplots.pdf {}'.format(keep))
 
 @task
 def copy_sounds(ctx):

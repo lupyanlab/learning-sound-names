@@ -23,7 +23,8 @@ transcription_matches %<>%
   recode_message_type %>%
   recode_version %>%
   label_outliers %>%
-  filter(is_outlier == 0, question_type != "catch_trial")
+  filter(is_outlier == 0, question_type != "catch_trial") %>%
+  mutate(word_char_n = nchar(word))
 
 ggplot(transcription_matches, aes(x = message_label, y = is_correct)) +
   geom_point(aes(group = word), stat = "summary", fun.y = "mean",
@@ -47,7 +48,7 @@ word_labels <- transcription_matches %>%
 transcription_matches %<>% left_join(word_labels)
 
 word_means <- transcription_matches %>%
-  group_by(message_type, seed_id, word, word_category, is_better_than_chance) %>%
+  group_by(message_type, seed_id, word, word_char_n, word_category, is_better_than_chance) %>%
   summarize(is_correct = mean(is_correct, na.rm = TRUE)) %>%
   ungroup %>%
   recode_message_type
@@ -84,11 +85,13 @@ check_within_desired_range <- function(sample) {
 # for overall match to seed accuracy.
 
 n_words_per_message <- 3
+n_word_categories <- 4
 max_iterations <- 10000
+max_word_length <- 8
 
 smart_sample <- function(frame) {
   for (i in 1:max_iterations) {
-    sample <- sample_n(frame, size = n_words_per_message)
+    sample <- sample_n(frame, size = n_words_per_message * n_word_categories)
     if (check_within_desired_range(sample)) {
       print('Found a sample that works!')
       return(sample)
@@ -99,20 +102,19 @@ smart_sample <- function(frame) {
 }
 
 sampled_labels <- above_chance %>%
-  filter(is_correct < 0.8) %>%
-  group_by(message_type, word_category) %>%
+  filter(is_correct < 0.8, word_char_n <= max_word_length) %>%
+  group_by(message_type) %>%
   do({ smart_sample(.) }) %>%
   ungroup %>%
   mutate(is_selected = TRUE) %>%
   select(word, is_selected)
 
 selected <- above_chance %>%
-  left_join(sampled_labels) %>%
-  filter(is_selected == 1)
+  left_join(sampled_labels)
 
 ggplot(selected, aes(x = message_label, y = is_correct)) +
-  geom_point(position = position_jitter(width = 0.2), shape = 1) +
-  geom_point(stat = "summary", fun.y = "mean", shape = 16, size = 3) +
+  geom_point(aes(color = is_selected), position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.5),
+             shape = 1) +
   geom_hline(aes(yintercept = is_correct), data = data.frame(is_correct = c(min_mean, max_mean)),
              lty = 2) +
   coord_cartesian(ylim = c(0, 1)) +

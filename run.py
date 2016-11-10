@@ -59,7 +59,7 @@ class Experiment(object):
 
     def setup_window(self):
         self.win = visual.Window()
-        self.word = visual.TextStim(self.win)
+        self.word = visual.TextStim(self.win, height=30, font='Consolas')
 
     def run_block(self, block):
         """Run a block of trials."""
@@ -69,13 +69,13 @@ class Experiment(object):
     def run_trial(self, trial):
         """Run a single trial."""
         self.word.setText(trial.word)
-        sound_duration = self.sounds[trial.seed_id].getDuration()
+        sound_duration = self.sounds[trial.sound_id].getDuration()
 
         # Start trial
         self.win.flip()
 
         # Play sound
-        self.sounds[trial.sound].play()
+        self.sounds[trial.sound_id].play()
         core.wait(sound_duration)
 
         # Delay between sound offset and word onset
@@ -169,7 +169,8 @@ class Trials(object):
         """
         seeds = (self.messages[['seed_id', 'category']]
                      .drop_duplicates()
-                     .rename(columns={'category': 'seed_category'}))
+                     .rename(columns={'seed_id': 'sound_id',
+                                      'category': 'sound_category'}))
 
         block_ixs = [1, 2, 3, 4]
         def assign_block(chunk):
@@ -179,7 +180,7 @@ class Trials(object):
 
         return (seeds.groupby('seed_category')
                      .apply(assign_block)
-                     .sort_values(['block_ix', 'seed_category', 'seed_id'])
+                     .sort_values(['block_ix', 'sound_category', 'sound_id'])
                      .reset_index(drop=True))
 
     def assign_words(self):
@@ -242,7 +243,7 @@ class Trials(object):
 
 
 class ResponseDevice(object):
-    """Provides a common interface for both gamepad and keyboard responses.
+    """Provides a common interface for gamepad and keyboard responses.
 
     When a response device is created, it tries to use the gamepad, but if
     a gamepad cannot be found, it will fall back to using the keyboard.
@@ -286,7 +287,7 @@ class ResponseDevice(object):
                     button = self._get_joystick_responses()
                     if button in self.gamepad:
                         response = self.gamepad[button]
-                        rt =  self.timer.getTime() * 1000
+                        rt = self.timer.getTime() * 1000
                         responded = True
                         break
 

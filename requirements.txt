@@ -2,3 +2,4 @@ invoke
 psychopy
 pandas
 PyYAML
+Unipath==1.1

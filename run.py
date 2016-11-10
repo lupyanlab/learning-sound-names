@@ -69,7 +69,7 @@ class Experiment(object):
     def run_trial(self, trial):
         """Run a single trial."""
         self.word.setText(trial.word)
-        sound_duration = self.sounds[trial.sound].getDuration()
+        sound_duration = self.sounds[trial.seed_id].getDuration()
 
         # Start trial
         self.win.flip()
@@ -135,7 +135,8 @@ class Experiment(object):
     def load_sounds(self, sounds_dir):
         self.sounds = {}
         for snd in Path(sounds_dir).listdir('*.wav'):
-            self.sounds[snd.name] = sound.Sound(snd)
+            sound_id = int(snd.stem)
+            self.sounds[sound_id] = sound.Sound(snd)
 
 
 class Trials(object):

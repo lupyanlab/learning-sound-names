@@ -9,7 +9,7 @@ from run import Trials
 @task
 def select_sounds(ctx):
     """Select the sounds to use in this experiment."""
-    ctx.run('Rscript --vanilla R/select_messages.R')
+    ctx.run('Rscript R/select_messages.R')
 
 @task
 def copy_sounds(ctx):

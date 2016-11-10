@@ -24,7 +24,7 @@ transcription_matches %<>%
   recode_version %>%
   label_outliers %>%
   filter(is_outlier == 0, question_type != "catch_trial") %>%
-  mutate(word_char_n = nchar(word))
+  mutate(word_length = nchar(word))
 
 ggplot(transcription_matches, aes(x = message_label, y = is_correct)) +
   geom_point(aes(group = word), stat = "summary", fun.y = "mean",
@@ -48,26 +48,35 @@ word_labels <- transcription_matches %>%
 transcription_matches %<>% left_join(word_labels)
 
 word_means <- transcription_matches %>%
-  group_by(message_type, seed_id, word, word_char_n, word_category, is_better_than_chance) %>%
+  group_by(message_type, seed_id, word, word_length, word_category, is_better_than_chance) %>%
   summarize(is_correct = mean(is_correct, na.rm = TRUE)) %>%
   ungroup %>%
   recode_message_type
 
+# Drop transcriptions that are too long
+
+max_word_length <- 10
+word_means %<>% mutate(is_too_long = word_length > max_word_length, is_length_ok = !is_too_long)
+
+# Show available transcriptions
+
 ggplot(word_means, aes(x = message_label, y = is_correct)) +
-  geom_point(aes(color = is_better_than_chance),
+  geom_point(aes(color = is_better_than_chance, shape = is_length_ok),
              position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.5)) +
   geom_hline(yintercept = 0.25, lty = 2) +
   scale_x_message_label +
+  scale_shape_manual(paste("word length <", max_word_length), labels = c("False", "True"), values = c(1, 16)) +
   scale_color_discrete(paste("p <", alpha), labels = c("False", "True")) +
-  labs(title = "Transcriptions with match accuracies > chance") +
+  labs(title = "Available transcriptions") +
   base_theme +
   theme(legend.position = "bottom")
 
-above_chance <- word_means %>% filter(is_better_than_chance == 1)
+available_means <- word_means %>% filter(is_better_than_chance == 1, is_length_ok == 1)
 
 # Calculate desired mean and sd based on transcriptions of
 # last gen imitations (the lowest performing group).
-baseline_group <- filter(above_chance, message_type == "last_gen_imitation")
+
+baseline_group <- filter(available_means, message_type == "last_gen_imitation")
 desired_mean <- mean(baseline_group$is_correct, na.rm = TRUE)
 
 error_prop <- 0.1
@@ -101,28 +110,26 @@ smart_sample <- function(frame) {
   sample_n(frame, size = n_words_per_message)
 }
 
-sampled_labels <- above_chance %>%
-  filter(is_correct < 0.8, word_char_n <= max_word_length) %>%
+sampled_labels <- available_means %>%
+  filter(is_correct < 0.8) %>%
   group_by(message_type) %>%
   do({ smart_sample(.) }) %>%
   ungroup %>%
   mutate(is_selected = TRUE) %>%
   select(word, is_selected)
 
-selected <- above_chance %>%
-  left_join(sampled_labels)
+available_means %<>% left_join(sampled_labels)
 
-ggplot(selected, aes(x = message_label, y = is_correct)) +
-  geom_point(aes(color = is_selected), position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.5),
-             shape = 1) +
-  geom_hline(aes(yintercept = is_correct), data = data.frame(is_correct = c(min_mean, max_mean)),
-             lty = 2) +
+ggplot(available_means, aes(x = message_label, y = is_correct)) +
+  geom_point(aes(color = is_selected), position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.5)) +
+  geom_hline(aes(yintercept = is_correct), data = data.frame(is_correct = c(min_mean, max_mean)), lty = 2) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_x_message_label +
   base_theme +
   theme(legend.position = "bottom")
 
-final <- selected %>%
+final <- available_means %>%
+  filter(is_selected == 1) %>%
   rename(category = word_category) %>%
   select(message_type, seed_id, category, word) %>%
   unique

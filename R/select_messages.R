@@ -117,26 +117,30 @@ check_within_desired_range <- function(sample) {
 # message types and categories and controlling
 # for overall match to seed accuracy.
 
-n_words_per_message <- 3
-n_word_categories <- 4
+max_words_per_message <- 3
 max_iterations <- 10000
-max_word_length <- 8
 
 smart_sample <- function(frame) {
+  if (nrow(frame) < max_words_per_message) {
+    print(paste('Only', nrow(frame), 'words available for this message.'))
+    return(frame)
+  }
+
   for (i in 1:max_iterations) {
-    sample <- sample_n(frame, size = n_words_per_message * n_word_categories)
+    sample <- sample_n(frame, size = max_words_per_message)
     if (check_within_desired_range(sample)) {
       print('Found a sample that works!')
       return(sample)
     }
   }
+
   print('Unable to find a sample satisfying the desired criteria, returning a random sample')
-  sample_n(frame, size = n_words_per_message * n_word_categories)
+  sample_n(frame, size = max_words_per_message)
 }
 
 sampled_labels <- available_means %>%
   filter(is_correct < 0.8) %>%
-  group_by(message_type) %>%
+  group_by(message_type, seed_id) %>%
   do({ smart_sample(.) }) %>%
   ungroup %>%
   mutate(is_selected = TRUE) %>%

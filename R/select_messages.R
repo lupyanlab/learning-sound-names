@@ -5,6 +5,7 @@ library(dplyr)
 library(ggplot2)
 library(broom)
 library(lme4)
+library(stringr)
 
 library(wordsintransition)
 data("transcription_matches")
@@ -37,7 +38,7 @@ ggplot(transcription_matches, aes(x = message_label, y = is_correct)) +
 # significantly better than chance.
 
 alpha <- 0.01
-word_labels <- transcription_matches %>%
+performace_labels <- transcription_matches %>%
   mutate(chance = 0.25) %>%
   group_by(word) %>%
   do(mod = glm(is_correct ~ offset(chance), data = .)) %>%
@@ -45,33 +46,56 @@ word_labels <- transcription_matches %>%
   mutate(is_better_than_chance = (estimate > 0) & (p.value < alpha)) %>%
   select(word, is_better_than_chance)
 
-transcription_matches %<>% left_join(word_labels)
+# Summarize performance by word, merging in the performance labels,
+# and creating new variables for filtering based on word length and
+# unique character count.
+
+unique_char <- function(x) {
+  # unique_char("d-d-d") == 1
+  # unique_char("da da da") == 2
+  x %>%
+    str_replace_all("[[:punct:][:blank:]]", "") %>%
+    strsplit("") %>%
+    lapply(table) %>%
+    lapply(length) %>%
+    unlist
+}
 
 word_means <- transcription_matches %>%
-  group_by(message_type, seed_id, word, word_length, word_category, is_better_than_chance) %>%
+  group_by(message_type, seed_id, word, word_category) %>%
   summarize(is_correct = mean(is_correct, na.rm = TRUE)) %>%
-  ungroup %>%
-  recode_message_type
+  ungroup() %>%
+  left_join(performace_labels) %>%
+  mutate(
+    word_length = nchar(word),
+    unique_char = unique_char(word)
+  ) %>%
+  recode_message_type()
 
-# Drop transcriptions that are too long
+# Drop transcriptions that are too long, and ones that
+# only contain a single unique character.
 
 max_word_length <- 10
-word_means %<>% mutate(is_too_long = word_length > max_word_length, is_length_ok = !is_too_long)
+min_unique_char <- 2
+word_means %<>% mutate(
+  is_too_long = word_length > max_word_length,
+  is_too_short = unique_char < min_unique_char,
+  is_word_ok = !is_too_long & !is_too_short)
 
 # Show available transcriptions
 
 ggplot(word_means, aes(x = message_label, y = is_correct)) +
-  geom_point(aes(color = is_better_than_chance, shape = is_length_ok),
+  geom_point(aes(color = is_better_than_chance, shape = is_word_ok),
              position = position_jitterdodge(jitter.width = 0.2, dodge.width = 0.5)) +
   geom_hline(yintercept = 0.25, lty = 2) +
   scale_x_message_label +
-  scale_shape_manual(paste("word length <", max_word_length), labels = c("False", "True"), values = c(1, 16)) +
+  scale_shape_manual("word length ok", labels = c("False", "True"), values = c(1, 16)) +
   scale_color_discrete(paste("p <", alpha), labels = c("False", "True")) +
   labs(title = "Available transcriptions") +
   base_theme +
   theme(legend.position = "bottom")
 
-available_means <- word_means %>% filter(is_better_than_chance == 1, is_length_ok == 1)
+available_means <- word_means %>% filter(is_better_than_chance == 1, is_word_ok == 1)
 
 # Calculate desired mean and sd based on transcriptions of
 # last gen imitations (the lowest performing group).
@@ -107,7 +131,7 @@ smart_sample <- function(frame) {
     }
   }
   print('Unable to find a sample satisfying the desired criteria, returning a random sample')
-  sample_n(frame, size = n_words_per_message)
+  sample_n(frame, size = n_words_per_message * n_word_categories)
 }
 
 sampled_labels <- available_means %>%
@@ -125,13 +149,15 @@ ggplot(available_means, aes(x = message_label, y = is_correct)) +
   geom_hline(aes(yintercept = is_correct), data = data.frame(is_correct = c(min_mean, max_mean)), lty = 2) +
   coord_cartesian(ylim = c(0, 1)) +
   scale_x_message_label +
+  scale_color_discrete("", labels = c("Selected for LSN experiment", "")) +
   base_theme +
-  theme(legend.position = "bottom")
+  theme(legend.position = "top")
 
 final <- available_means %>%
   filter(is_selected == 1) %>%
   rename(category = word_category) %>%
   select(message_type, seed_id, category, word) %>%
-  unique
+  unique %>%
+  arrange(message_type, category, seed_id)
 
 write.csv(final, "stimuli/messages.csv", row.names = FALSE)

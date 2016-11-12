@@ -1,4 +1,11 @@
 ---
-title: Learning names for sounds
 instructions: |
-  Thanks for participating in the study.
+  Thanks for participating in the study. In this experiment we are going to have you learn some new words to name different types of sounds. Think about it like you are on an alien planet and you are learning words for some of the sounds that are common on their planet.
+
+  In the experiment you'll learn which names go with which sounds through trial and error. On each trial you will hear one of the sounds and then you'll see a word for it, and you have to decide whether the word is the correct word. If it is, you'll press the {yes_key} on the {device}. If it's not the right word, press the {no_key}.
+
+  At first you will have to guess which words go with which sounds, but since you'll be getting feedback on your performance, you should be able to learn the correct names for the sounds pretty quickly. If you guess correctly you'll hear a 'beep'. If you guess incorrectly you'll hear a 'buzz'.
+
+  If you have any questions, now is the time to ask the experimenter. When you feel you understand these instructions and are ready to begin, press the {continue_key}.
+break: |
+  Take a quick break. When you are ready to continue, press the {continue_key}.

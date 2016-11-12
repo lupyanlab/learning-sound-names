@@ -26,7 +26,9 @@ WORD_TYPES = {1: 'sound_effect',
 
 
 class Experiment(object):
+    fix_sec = 0.2
     delay_sec = 0.6
+    word_sec = 0.5
     quit_allowed = True
 
     def __init__(self, subject):
@@ -64,8 +66,15 @@ class Experiment(object):
         core.quit()
 
     def setup_window(self):
-        self.win = visual.Window(units='pix', allowGUI=False)
-        self.word = visual.TextStim(self.win, height=30, font='Consolas')
+        self.win = visual.Window(fullscr=True, units='pix', allowGUI=False)
+
+        text_kwargs = dict(win=self.win, height=50, font='Consolas',
+                           color='black')
+        self.word = visual.TextStim(**text_kwargs)
+        self.fix = visual.TextStim(text='+', **text_kwargs)
+        self.prompt = visual.TextStim(text='?', **text_kwargs)
+
+        self.icon = visual.ImageStim(self.win, 'stimuli/speaker_icon.png')
 
     def run_block(self, block):
         """Run a block of trials."""
@@ -75,20 +84,30 @@ class Experiment(object):
     def run_trial(self, trial):
         """Run a single trial."""
         self.word.setText(trial.word)
-        sound_duration = self.sounds[trial.sound_id].getDuration()
+        sound_sec = self.sounds[trial.sound_id].getDuration()
 
         # Start trial
+        self.fix.draw()
         self.win.flip()
+        core.wait(self.fix_sec)
 
         # Play sound
+        self.icon.draw()
+        self.win.flip()
         self.sounds[trial.sound_id].play()
-        core.wait(sound_duration)
+        core.wait(sound_sec)
 
         # Delay between sound offset and word onset
+        self.win.flip()
         core.wait(self.delay_sec)
 
-        # Show word and get response
+        # Flash word
         self.word.draw()
+        self.win.flip()
+        core.wait(self.word_sec)
+
+        # Get response
+        self.prompt.draw()
         self.win.flip()
         response = self.device.get_response()
 
@@ -103,24 +122,24 @@ class Experiment(object):
         self.write_trial(**response)
 
     def show_instructions(self):
-        self.show_text_screen(title=self.texts['title'],
-                              body=self.texts['instructions'])
+        title = 'Learning names for sounds'
+        body = self.texts['instructions'].format(**self.device.current_device)
+        self.show_text_screen(title=title, body=body)
 
     def show_break_screen(self):
         title = "Take a break!"
-        body = ("Take a quick break. When you are ready to continue, "
-                "press the SPACEBAR.")
+        body = self.texts['break'].format(**self.device.current_device)
         self.show_text_screen(title=title, body=body)
 
     def show_text_screen(self, title, body):
-        text_kwargs = dict(win=self.win, font='Consolas',
-                           wrapWidth=self.win.size[0] * 0.7)
+        text_kwargs = dict(win=self.win, font='Consolas', color='black',
+                           wrapWidth=self.win.size[0] * 0.5)
         gap = 80
         title_y = self.win.size[1]/2 - gap
         visual.TextStim(text=title, alignVert='top',
-                        pos=[0, title_y], height=30, bold=True,
+                        pos=[0, title_y], height=40, bold=True,
                         **text_kwargs).draw()
-        visual.TextStim(text=body, alignVert='top', height=20,
+        visual.TextStim(text=body, alignVert='top', height=30,
                         pos=[0, title_y-gap],
                         **text_kwargs).draw()
         self.win.flip()
@@ -147,6 +166,9 @@ class Experiment(object):
 
 
 class Trials(object):
+    n_sound_rep = 6     # Number of times each sound is heard in a block
+    prop_correct = 0.5  # Proportion trials for which 'yes' is correct
+
     def __init__(self, seed=None, word_type_n=None, **kwargs):
         self.random = random.RandomState(seed=seed)
         assert word_type_n in WORD_TYPES, \
@@ -209,16 +231,13 @@ class Trials(object):
 
     def generate_trials(self, blocks, words):
         """Generate correct and incorrect response trials for each block."""
-        n_sound_rep = 4     # Number of times each sound is heard in a block
-        prop_correct = 0.5  # Proportion trials for which 'yes' is correct
-
         # Begin by making trials as long as necessary
-        trials = pandas.concat([blocks] * n_sound_rep, ignore_index=True)
+        trials = pandas.concat([blocks] * self.n_sound_rep, ignore_index=True)
 
         # Randomly decide whether the trial is correct or incorrect
         trials['correct_response'] = \
             self.random.choice([1, 0], size=len(trials),
-                               p=[prop_correct, 1-prop_correct])
+                               p=[self.prop_correct, 1-self.prop_correct])
 
         # Assign a word for each trial based on desired correctness
         def determine_word(trial):
@@ -277,9 +296,21 @@ class ResponseDevice(object):
             self.stick = pygame.joystick.init()
             self.stick = pygame.joystick.Joystick(0)
             self.stick.init()
+            self.current_device = dict(
+                device='gamepad',
+                yes_key='green button',
+                no_key='red button',
+                continue_key='green button',
+            )
         except:
             print 'unable to init joystick with pygame'
             self.stick = None
+            self.current_device = dict(
+                device='keyboard',
+                yes_key="'y' key",
+                no_key="'n' key",
+                continue_key="SPACEBAR",
+            )
 
     def get_response(self):
         if self.stick:

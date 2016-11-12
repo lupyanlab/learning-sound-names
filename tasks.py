@@ -2,6 +2,7 @@ import sys
 
 from invoke import task
 from unipath import Path
+import pandas
 
 from run import Trials
 
@@ -21,7 +22,7 @@ def select_sounds(ctx, install=False, keep=None):
         ctx.run('mv Rplots.pdf {}'.format(keep))
 
 @task
-def copy_sounds(ctx):
+def copy_sounds(ctx, force=False):
     """Copy sounds from acoustic-similarity to use in this experiment."""
     src_dir = Path('../acoustic-similarity/data/sounds')
     dst_dir = Path('stimuli/sounds')
@@ -29,11 +30,11 @@ def copy_sounds(ctx):
     if not dst_dir.isdir():
         dst_dir.mkdir()
 
-    trials = Trials()
-    for seed_id in trials.messages.seed_id.unique():
+    trials = pandas.read_csv('stimuli/messages.csv')
+    for seed_id in trials.seed_id.unique():
         seed_name = '{}.wav'.format(seed_id)
         dst = Path(dst_dir, seed_name)
-        if not dst.exists():
+        if force or not dst.exists():
             Path(src_dir, seed_name).copy(dst)
 
 @task

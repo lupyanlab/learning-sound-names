@@ -159,8 +159,8 @@ ggplot(available_means, aes(x = message_label, y = is_correct)) +
 
 final <- available_means %>%
   filter(is_selected == 1) %>%
-  rename(category = word_category) %>%
-  select(message_type, seed_id, category, word) %>%
+  rename(category = word_category, word_type = message_type) %>%
+  select(category, seed_id, word_type, word) %>%
   unique %>%
   arrange(message_type, category, seed_id)
 

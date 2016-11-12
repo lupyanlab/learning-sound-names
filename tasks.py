@@ -37,6 +37,7 @@ def copy_sounds(ctx):
             Path(src_dir, seed_name).copy(dst)
 
 @task
-def create_trials(ctx):
+def create_trials(ctx, seed=None, word_type_n=None):
     """Create a sample trial list."""
-    Trials().trials.to_csv('sample_trials.csv', index=False)
+    subj_vars = dict(seed=seed, word_type_n=int(word_type_n))
+    Trials(**subj_vars).trials.to_csv('sample_trials.csv', index=False)

@@ -1,26 +1,33 @@
 #!/usr/bin/env python
 import socket
 
-from numpy import random
-import pandas
 from psychopy import visual, event, core, sound, gui, logging, data
+import pandas
+from numpy import random
 from unipath import Path
 import yaml
 
 try:
     import pygame
 except ImportError:
-    print 'pygame not found! can\'t use gamepad'
+    print "pygame not found! can't use gamepad"
 
-
-DATA_COLS = ('subj_id date experimenter computer block_ix trial_ix '
-             'sound_id sound_category word word_category correct_response '
-             'response rt is_correct').split()
+DATA_COLS = """
+subj_id date experimenter computer block_ix trial_ix
+sound_id word sound_category word_category word_type
+correct_response response rt is_correct
+""".split()
 DATA_FILE = 'data/{subj_id}.csv'
+
+# Between subject variables
+WORD_TYPES = {1: 'sound_effect',
+              2: 'first_gen_imitation',
+              3: 'last_gen_imitation'}
 
 
 class Experiment(object):
     delay_sec = 0.6
+    quit_allowed = True
 
     def __init__(self, subject):
         self.session = subject.copy()
@@ -49,16 +56,15 @@ class Experiment(object):
         for block in self.trials.blocks():
             try:
                 self.run_block(block)
+                self.show_break_screen()
             except QuitExperiment:
                 break
-            else:
-                self.show_break_screen()
 
         self.data_file.close()
         core.quit()
 
     def setup_window(self):
-        self.win = visual.Window()
+        self.win = visual.Window(units='pix', allowGUI=False)
         self.word = visual.TextStim(self.win, height=30, font='Consolas')
 
     def run_block(self, block):
@@ -119,7 +125,8 @@ class Experiment(object):
                         **text_kwargs).draw()
         self.win.flip()
         response = event.waitKeys()[0]
-        if response == 'q':
+
+        if response == 'q' and self.quit_allowed:
             raise QuitExperiment
 
     def write_trial(self, **trial_data):
@@ -140,8 +147,11 @@ class Experiment(object):
 
 
 class Trials(object):
-    def __init__(self, seed=None, **kwargs):
+    def __init__(self, seed=None, word_type_n=None, **kwargs):
         self.random = random.RandomState(seed=seed)
+        assert word_type_n in WORD_TYPES, \
+            'word_type_n {} not in {}'.format(word_type_n, WORD_TYPES.keys())
+        self.word_type = WORD_TYPES[word_type_n]
         self._messages = None
         self._trials = None
 
@@ -150,6 +160,9 @@ class Trials(object):
         """All eligible messages that could be tested in this experiment."""
         if self._messages is None:
             self._messages = pandas.read_csv('stimuli/messages.csv')
+            # Select only those messages with the correct message type
+            selected = self._messages.word_type == self.word_type
+            self._messages = self._messages.ix[selected].reset_index(drop=True)
         return self._messages
 
     @property
@@ -178,7 +191,7 @@ class Trials(object):
             chunk.insert(0, 'block_ix', ix)
             return chunk
 
-        return (seeds.groupby('seed_category')
+        return (seeds.groupby('sound_category')
                      .apply(assign_block)
                      .sort_values(['block_ix', 'sound_category', 'sound_id'])
                      .reset_index(drop=True))
@@ -210,16 +223,16 @@ class Trials(object):
         # Assign a word for each trial based on desired correctness
         def determine_word(trial):
             if trial.correct_response:
-                options = words.word_category == trial.seed_category
+                options = words.word_category == trial.sound_category
             else:
-                options = words.word_category != trial.seed_category
+                options = words.word_category != trial.sound_category
 
             return (words.ix[options, 'word']
                          .sample(1, random_state=self.random)
                          .squeeze())
 
         trials['word'] = trials.apply(determine_word, axis=1)
-        trials = trials.merge(words[['word', 'word_category']])
+        trials = trials.merge(words[['word', 'word_category', 'word_type']])
 
         # Create trial ix and shuffle within blocks
         def shuffle_trial_ix(block):
@@ -315,6 +328,7 @@ class QuitExperiment(Exception):
 
 
 if __name__ == '__main__':
-    subj = dict(subj_id='test', experimenter='test', seed=100)
+    subj = dict(subj_id='test', experimenter='test', seed=100,
+                word_type_n=1)
     exp = Experiment(subj)
     exp.run()

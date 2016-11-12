@@ -25,6 +25,8 @@ def select_sounds(ctx, install=False, keep=None):
 def copy_sounds(ctx, force=False):
     """Copy sounds from acoustic-similarity to use in this experiment."""
     src_dir = Path('../acoustic-similarity/data/sounds')
+    assert src_dir.isdir(), 'expecting sounds to be in {}'.format(src_dir)
+
     dst_dir = Path('stimuli/sounds')
 
     if not dst_dir.isdir():

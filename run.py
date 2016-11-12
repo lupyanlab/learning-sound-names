@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import socket
 
-from psychopy import visual, event, core, sound, gui, logging, data
+from psychopy import visual, event, core, sound, gui, logging, data, misc
 import pandas
 from numpy import random
 from unipath import Path
@@ -53,7 +53,12 @@ class Experiment(object):
     def run(self):
         """Run the experiment."""
         self.setup_window()
-        self.show_instructions()
+        try:
+            self.show_instructions()
+        except QuitExperiment:
+            self.data_file.close()
+            core.quit()
+            return
 
         for block in self.trials.blocks():
             try:
@@ -358,8 +363,67 @@ class QuitExperiment(Exception):
     pass
 
 
+def get_subj_info(gui_yaml, data_file_fmt):
+    """Create a psychopy.gui from a yaml config file.
+
+    The first time the experiment is run, a pickle of that subject's settings
+    is saved. On subsequent runs, the experiment tries to prepopulate the
+    settings with those of the previous subject.
+
+    Args:
+        gui_yaml (str):
+            Path to config file in yaml format.
+        data_file_fmt (str):
+            Formatted string to determine location of data file.
+            e.g., 'data/{subj_id}.csv'. If a file exists at that
+            location, a popup error is raised.
+
+    Returns:
+        dict of subject info
+    """
+    with open(gui_yaml, 'r') as f:
+        gui_info = yaml.load(f)
+
+    ordered_fields = [field for _, field in sorted(gui_info.items())]
+
+    # Determine order and tips
+    ordered_names = [field['name'] for field in ordered_fields]
+    field_tips = {field['name']: field['prompt'] for field in ordered_fields}
+
+    # Load the last participant's options or use the defaults
+    last_subj_info = gui_yaml + '.pickle'
+    try:
+        gui_data = misc.fromFile(last_subj_info)
+        for yaml_name in ordered_names:
+            if yaml_name not in gui_data:
+                # Invalid pickle
+                raise AssertionError
+    except IOError, AssertionError:
+        gui_data = {field['name']: field['default'] for field in ordered_fields}
+
+    while True:
+        # Bring up the dialogue
+        dlg = gui.DlgFromDict(gui_data, order=ordered_names, tip=field_tips)
+
+        if not dlg.OK:
+            core.quit()
+
+        subj_info = dict(gui_data)
+
+        if Path(data_file_fmt.format(**subj_info)).exists():
+            popup_error('A data file already exists for that subject.')
+        else:
+            misc.toFile(last_subj_info, subj_info)
+            break
+
+    return subj_info
+
+def popup_error(text):
+	errorDlg = gui.Dlg(title="Error", pos=(200,400))
+	errorDlg.addText('Error: '+text, color='Red')
+	errorDlg.show()
+
 if __name__ == '__main__':
-    subj = dict(subj_id='test', experimenter='test', seed=100,
-                word_type_n=1)
+    subj = get_subj_info('subj_info.yaml', DATA_FILE)
     exp = Experiment(subj)
     exp.run()

@@ -1,0 +1,12 @@
+1:
+  name: subj_id
+  prompt: Subject identifier
+  default: LSN101
+2:
+  name: seed
+  prompt: Randomizer
+  default: 101
+3:
+  name: word_type_n
+  prompt: Word condition (1, 2, or 3).
+  default: 1

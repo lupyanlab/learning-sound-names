@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import socket
 from pydoc import locate
+import webbrowser
 
 from psychopy import visual, event, core, sound, gui, logging, data, misc
 import pandas
@@ -32,6 +33,7 @@ class Experiment(object):
     word_sec = 1.0
     iti_sec = 1.0   # Inter trial interval
     quit_allowed = True
+    survey_url = 'https://docs.google.com/forms/d/e/1FAIpQLSdw_9mEj3FcToSTz7Sxv8o_Wf_S5yRjPPVZrF8RCzo8SXPj4A/viewform?entry.214853107={subj_id}&entry.497668873={computer}'
 
     def __init__(self, subject):
         self.session = subject.copy()
@@ -54,13 +56,14 @@ class Experiment(object):
 
     def run(self):
         """Run the experiment."""
+        quitting = False
         self.setup_window()
 
         try:
             self.show_instructions()
         except QuitExperiment:
             self.data_file.close()
-            Path(self.data_file.name).remove()
+            self.remove_data_file()
             core.quit()
             return
 
@@ -69,7 +72,11 @@ class Experiment(object):
                 self.run_block(block)
                 self.show_break_screen()
             except QuitExperiment:
+                quitting = True
                 break
+
+        if not quitting:
+            self.open_survey()
 
         self.data_file.close()
         core.quit()
@@ -177,6 +184,12 @@ class Experiment(object):
         for snd in Path(sounds_dir).listdir('*.wav'):
             sound_id = int(snd.stem)
             self.sounds[sound_id] = sound.Sound(snd)
+
+    def open_survey(self):
+        webbrowser.open(self.survey_url.format(**self.session))
+
+    def remove_data_file(self):
+        Path(self.data_file.name).remove()
 
 
 class Trials(object):
@@ -393,12 +406,20 @@ def get_subj_info(gui_yaml, data_file_fmt):
     An example yaml config file looks like this:
 
         ---
+        # subj_info.yaml
         1:
-          name: var_name
-          prompt: Var description.
-          default: var_default
-          type: var_type
-          options: [var_option_1, var_option_2, var_option_3]
+          name: subj_id
+          prompt: Subject identifier.
+          default: SUBJ1
+        2:
+          name: condition
+          prompt: Between subjects condition.
+          options: [a, b, c]
+        3:
+          name: order
+          prompt: Between subjects order.
+          type: int
+          options: [1, 2, 3]
 
     """
     with open(gui_yaml, 'r') as f:
@@ -421,7 +442,11 @@ def get_subj_info(gui_yaml, data_file_fmt):
     except IOError, AssertionError:
         gui_data = {field['name']: field['default'] for field in ordered_fields}
 
-    # Validation
+    # Make gui data all strings
+    for name, value in gui_data.items():
+        gui_data[name] = str(value)
+
+    # Field validation: type and options
     types = {field['name']: locate(field['type'])
              for field in ordered_fields if 'type' in field}
     options = {field['name']: field['options']
@@ -432,10 +457,6 @@ def get_subj_info(gui_yaml, data_file_fmt):
         if name in options:
             str_options = options[name]
             options[name] = [type_(o) for o in str_options]
-
-    # Make gui data all strings
-    for name, value in gui_data.items():
-        gui_data[name] = str(value)
 
     while True:
         # Bring up the dialogue
@@ -468,9 +489,10 @@ def get_subj_info(gui_yaml, data_file_fmt):
                     error = True
                     break
 
-        if Path(data_file_fmt.format(**subj_info)).exists():
-            popup_error('A data file already exists for that subject.')
-            error = True
+        if not error:
+            if Path(data_file_fmt.format(**subj_info)).exists():
+                popup_error('A data file already exists for that subject.')
+                error = True
 
         if not error:
             misc.toFile(last_subj_info, subj_info)

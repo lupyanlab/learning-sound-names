@@ -4,7 +4,7 @@ from invoke import task
 from unipath import Path
 import pandas
 
-from run import Trials
+from run import Experiment, Trials
 
 
 @task(help=dict(install='(Re)install the wordsintransition pkg.'))
@@ -44,3 +44,12 @@ def create_trials(ctx, seed=None, word_type_n=None):
     """Create a sample trial list."""
     subj_vars = dict(seed=seed, word_type_n=int(word_type_n))
     Trials(**subj_vars).trials.to_csv('sample_trials.csv', index=False)
+
+
+@task
+def open_survey(ctx):
+    """Open the survey to test out how values are prepopulated."""
+    subj = dict(subj_id='test', word_type_n=1)
+    exp = Experiment(subj)  # creates blank data file
+    exp.open_survey()
+    exp.remove_data_file()  # removes blank data file

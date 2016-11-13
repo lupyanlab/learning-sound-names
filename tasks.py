@@ -7,7 +7,7 @@ import pandas
 from run import Trials
 
 
-@task(help=dict(install='(Re)install the wordsintransition pkg first.'))
+@task(help=dict(install='(Re)install the wordsintransition pkg.'))
 def select_sounds(ctx, install=False, keep=None):
     """Select the sounds to use in this experiment."""
     if install:

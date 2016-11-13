@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import socket
+from pydoc import locate
 
 from psychopy import visual, event, core, sound, gui, logging, data, misc
 import pandas
@@ -26,9 +27,10 @@ WORD_TYPES = {1: 'sound_effect',
 
 
 class Experiment(object):
-    fix_sec = 0.2
-    delay_sec = 0.6
-    word_sec = 0.5
+    fix_sec = 0.5
+    delay_sec = 1.0
+    word_sec = 1.0
+    iti_sec = 1.0   # Inter trial interval
     quit_allowed = True
 
     def __init__(self, subject):
@@ -53,10 +55,12 @@ class Experiment(object):
     def run(self):
         """Run the experiment."""
         self.setup_window()
+
         try:
             self.show_instructions()
         except QuitExperiment:
             self.data_file.close()
+            Path(self.data_file.name).remove()
             core.quit()
             return
 
@@ -79,7 +83,8 @@ class Experiment(object):
         self.fix = visual.TextStim(text='+', **text_kwargs)
         self.prompt = visual.TextStim(text='?', **text_kwargs)
 
-        self.icon = visual.ImageStim(self.win, 'stimuli/speaker_icon.png')
+        self.icon = visual.ImageStim(self.win, 'stimuli/speaker_icon.png',
+                                     size=[100, 100])
 
     def run_block(self, block):
         """Run a block of trials."""
@@ -125,6 +130,10 @@ class Experiment(object):
         self.win.flip()
         response.update(trial._asdict())  # combine response and trial data
         self.write_trial(**response)
+
+        # ITI
+        self.win.flip()
+        core.wait(self.iti_sec)
 
     def show_instructions(self):
         title = 'Learning names for sounds'
@@ -380,13 +389,24 @@ def get_subj_info(gui_yaml, data_file_fmt):
 
     Returns:
         dict of subject info
+
+    An example yaml config file looks like this:
+
+        ---
+        1:
+          name: var_name
+          prompt: Var description.
+          default: var_default
+          type: var_type
+          options: [var_option_1, var_option_2, var_option_3]
+
     """
     with open(gui_yaml, 'r') as f:
         gui_info = yaml.load(f)
 
     ordered_fields = [field for _, field in sorted(gui_info.items())]
 
-    # Determine order and tips
+    # Determine order, tips, and validation
     ordered_names = [field['name'] for field in ordered_fields]
     field_tips = {field['name']: field['prompt'] for field in ordered_fields}
 
@@ -401,6 +421,22 @@ def get_subj_info(gui_yaml, data_file_fmt):
     except IOError, AssertionError:
         gui_data = {field['name']: field['default'] for field in ordered_fields}
 
+    # Validation
+    types = {field['name']: locate(field['type'])
+             for field in ordered_fields if 'type' in field}
+    options = {field['name']: field['options']
+               for field in ordered_fields if 'options' in field}
+
+    # Convert options to field type, e.g., ['1', '2', '3'] -> [1, 2, 3]
+    for name, type_ in types.items():
+        if name in options:
+            str_options = options[name]
+            options[name] = [type_(o) for o in str_options]
+
+    # Make gui data all strings
+    for name, value in gui_data.items():
+        gui_data[name] = str(value)
+
     while True:
         # Bring up the dialogue
         dlg = gui.DlgFromDict(gui_data, order=ordered_names, tip=field_tips)
@@ -409,10 +445,34 @@ def get_subj_info(gui_yaml, data_file_fmt):
             core.quit()
 
         subj_info = dict(gui_data)
+        error = False
+
+        # Attempt to convert to correct type
+        if not error:
+            for name, type_ in types.items():
+                given = subj_info[name]
+                try:
+                    subj_info[name] = type_(given)
+                except:
+                    popup_error("Can't convert {} to {}".format(given, type_))
+                    error = True
+                    break
+
+        # Evaluate if choices are in options
+        if not error:
+            for name, opts in options.items():
+                given = subj_info[name]
+                if given not in opts:
+                    popup_error('{} not a valid option for {}. '
+                                'Options are {}'.format(given, name, opts))
+                    error = True
+                    break
 
         if Path(data_file_fmt.format(**subj_info)).exists():
             popup_error('A data file already exists for that subject.')
-        else:
+            error = True
+
+        if not error:
             misc.toFile(last_subj_info, subj_info)
             break
 

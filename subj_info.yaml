@@ -6,7 +6,10 @@
   name: seed
   prompt: Randomizer
   default: 101
+  type: int
 3:
   name: word_type_n
   prompt: Word condition (1, 2, or 3).
   default: 1
+  type: int
+  options: [1, 2, 3]

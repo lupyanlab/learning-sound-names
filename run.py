@@ -119,7 +119,7 @@ class Experiment(object):
 
         # Delay before start of sound
         self.win.flip()
-        core.wati(self.post_fix_sec)
+        core.wait(self.post_fix_sec)
 
         # Play sound
         self.icon.draw()

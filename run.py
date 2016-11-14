@@ -29,6 +29,7 @@ WORD_TYPES = {1: 'sound_effect',
 
 class Experiment(object):
     fix_sec = 0.5
+    post_fix_sec = 0.5
     delay_sec = 1.0
     word_sec = 0.6
     feedback_sec = 0.5
@@ -116,6 +117,10 @@ class Experiment(object):
         self.win.flip()
         core.wait(self.fix_sec)
 
+        # Delay before start of sound
+        self.win.flip()
+        core.wati(self.post_fix_sec)
+
         # Play sound
         self.icon.draw()
         self.win.flip()
@@ -176,7 +181,7 @@ class Experiment(object):
                         pos=[0, title_y-gap],
                         **text_kwargs).draw()
         self.win.flip()
-        
+
         response = self.device.get_response()
         print response
 

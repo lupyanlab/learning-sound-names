@@ -13,6 +13,7 @@ invoke select_messages
 
 ```bash
 invoke create_trials --seed 101 --word-type-n 1
+# creates sample_trials.csv
 ```
 
 ## Run the experiment

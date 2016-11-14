@@ -44,8 +44,8 @@ class Experiment(object):
         self.trials = Trials(**subject)
         self.load_sounds('stimuli/sounds')
         self.texts = yaml.load(open('texts.yaml'))
-        self.device = ResponseDevice(gamepad=None,
-                                     keyboard=dict(y=1, n=0))
+        self.device = ResponseDevice(gamepad={0: 1, 3: 0},
+                                     keyboard={'y': 1, 'n': 0})
 
         data_dir = Path(DATA_FILE.format(**subject)).parent
         if not data_dir.isdir():

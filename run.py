@@ -154,13 +154,13 @@ class Experiment(object):
 
     def show_text_screen(self, title, body):
         text_kwargs = dict(win=self.win, font='Consolas', color='black',
-                           wrapWidth=self.win.size[0] * 0.5)
+                           wrapWidth=self.win.size[0] * 0.6)
         gap = 80
         title_y = self.win.size[1]/2 - gap
         visual.TextStim(text=title, alignVert='top',
                         pos=[0, title_y], height=40, bold=True,
                         **text_kwargs).draw()
-        visual.TextStim(text=body, alignVert='top', height=30,
+        visual.TextStim(text=body, alignVert='top', height=24,
                         pos=[0, title_y-gap],
                         **text_kwargs).draw()
         self.win.flip()
@@ -500,10 +500,12 @@ def get_subj_info(gui_yaml, data_file_fmt):
 
     return subj_info
 
+
 def popup_error(text):
 	errorDlg = gui.Dlg(title="Error", pos=(200,400))
 	errorDlg.addText('Error: '+text, color='Red')
 	errorDlg.show()
+
 
 if __name__ == '__main__':
     subj = get_subj_info('subj_info.yaml', DATA_FILE)

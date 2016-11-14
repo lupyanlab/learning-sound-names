@@ -43,6 +43,9 @@ class Experiment(object):
 
         self.trials = Trials(**subject)
         self.load_sounds('stimuli/sounds')
+        self.feedback = {}
+        self.feedback['audio'] = {0: sound.Sound('stimuli/feedback/incorrect.wav'),
+                                  1: sound.Sound('stimuli/feedback/correct.wav')}
         self.texts = yaml.load(open('texts.yaml'))
         self.device = ResponseDevice(gamepad={0: 1, 3: 0},
                                      keyboard={'y': 1, 'n': 0})
@@ -81,7 +84,7 @@ class Experiment(object):
         core.quit()
 
     def setup_window(self):
-        self.win = visual.Window(fullscr=True, units='pix', allowGUI=False)
+        self.win = visual.Window(fullscr=True, units='pix', allowGUI=False, winType='pyglet')
 
         text_kwargs = dict(win=self.win, height=50, font='Consolas',
                            color='black')
@@ -93,13 +96,10 @@ class Experiment(object):
                                      size=[100, 100])
 
         feedback_kwargs = dict(win=self.win, size=[100, 100])
-        self.feedback = {
-            0: visual.ImageStim(image='stimuli/feedback/incorrect.png',
-                                **feedback_kwargs),
-            1: visual.ImageStim(image='stimuli/feedback/correct.png',
-                                **feedback_kwargs)
-        }
-
+        self.feedback['visual'] = {
+            0: visual.ImageStim(image='stimuli/feedback/incorrect.png', **feedback_kwargs),
+            1: visual.ImageStim(image='stimuli/feedback/correct.png', **feedback_kwargs)
+         }
 
     def run_block(self, block):
         """Run a block of trials."""
@@ -141,7 +141,8 @@ class Experiment(object):
         response['is_correct'] = is_correct
 
         # Show feedback
-        self.feedback[is_correct].draw()
+        self.feedback['audio'][is_correct].play()
+        self.feedback['visual'][is_correct].draw()
         self.win.flip()
         core.wait(self.feedback_sec)
 
@@ -175,10 +176,9 @@ class Experiment(object):
                         pos=[0, title_y-gap],
                         **text_kwargs).draw()
         self.win.flip()
-        response = event.waitKeys()[0]
-
-        if response == 'q' and self.quit_allowed:
-            raise QuitExperiment
+        
+        response = self.device.get_response()
+        print response
 
     def write_trial(self, **trial_data):
         data = self.session.copy()
@@ -311,7 +311,7 @@ class ResponseDevice(object):
     a gamepad cannot be found, it will fall back to using the keyboard.
     Response data is provided as a dict.
 
-    >>> device = ResponseDevice(gamepad={6: 'yes', 7: 'no'},
+    >>> device = ResponseDevice(gamepad={0: 'yes', 3: 'no'},
                                 keyboard={'y': 'yes', 'n': 'no'})
     >>> device.get_response()  # tries to use gamepad, otherwise uses keyboard
     {'rt': 1323, 'response': 'yes'}
@@ -332,6 +332,7 @@ class ResponseDevice(object):
                 no_key='red button',
                 continue_key='green button',
             )
+            pygame.init()
         except:
             print 'unable to init joystick with pygame'
             self.stick = None
@@ -505,9 +506,9 @@ def get_subj_info(gui_yaml, data_file_fmt):
 
 
 def popup_error(text):
-	errorDlg = gui.Dlg(title="Error", pos=(200,400))
-	errorDlg.addText('Error: '+text, color='Red')
-	errorDlg.show()
+    errorDlg = gui.Dlg(title="Error", pos=(200,400))
+    errorDlg.addText('Error: '+text, color='Red')
+    errorDlg.show()
 
 
 if __name__ == '__main__':

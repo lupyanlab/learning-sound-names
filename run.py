@@ -30,7 +30,8 @@ WORD_TYPES = {1: 'sound_effect',
 class Experiment(object):
     fix_sec = 0.5
     delay_sec = 1.0
-    word_sec = 1.0
+    word_sec = 0.6
+    feedback_sec = 0.5
     iti_sec = 1.0   # Inter trial interval
     quit_allowed = True
     survey_url = 'https://docs.google.com/forms/d/e/1FAIpQLSdw_9mEj3FcToSTz7Sxv8o_Wf_S5yRjPPVZrF8RCzo8SXPj4A/viewform?entry.214853107={subj_id}&entry.497668873={computer}'
@@ -42,8 +43,6 @@ class Experiment(object):
 
         self.trials = Trials(**subject)
         self.load_sounds('stimuli/sounds')
-        self.feedback = {0: sound.Sound('stimuli/feedback/buzz.wav'),
-                         1: sound.Sound('stimuli/feedback/bleep.wav')}
         self.texts = yaml.load(open('texts.yaml'))
         self.device = ResponseDevice(gamepad=None,
                                      keyboard=dict(y=1, n=0))
@@ -93,6 +92,15 @@ class Experiment(object):
         self.icon = visual.ImageStim(self.win, 'stimuli/speaker_icon.png',
                                      size=[100, 100])
 
+        feedback_kwargs = dict(win=self.win, size=[100, 100])
+        self.feedback = {
+            0: visual.ImageStim(image='stimuli/feedback/incorrect.png',
+                                **feedback_kwargs),
+            1: visual.ImageStim(image='stimuli/feedback/correct.png',
+                                **feedback_kwargs)
+        }
+
+
     def run_block(self, block):
         """Run a block of trials."""
         for trial in block:
@@ -130,11 +138,14 @@ class Experiment(object):
 
         # Evaluate response
         is_correct = response['response'] == trial.correct_response
-        self.feedback[is_correct].play()
         response['is_correct'] = is_correct
 
-        # End trial
+        # Show feedback
+        self.feedback[is_correct].draw()
         self.win.flip()
+        core.wait(self.feedback_sec)
+
+        # End trial
         response.update(trial._asdict())  # combine response and trial data
         self.write_trial(**response)
 

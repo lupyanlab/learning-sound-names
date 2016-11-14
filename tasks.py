@@ -42,7 +42,7 @@ def copy_sounds(ctx, force=False):
 @task
 def create_trials(ctx, seed=None, word_type_n=None):
     """Create a sample trial list."""
-    subj_vars = dict(seed=seed, word_type_n=int(word_type_n))
+    subj_vars = dict(seed=int(seed), word_type_n=int(word_type_n))
     Trials(**subj_vars).trials.to_csv('sample_trials.csv', index=False)
 
 

@@ -205,16 +205,6 @@ class Trials(object):
         self._trials = None
 
     @property
-    def messages(self):
-        """All eligible messages that could be tested in this experiment."""
-        if self._messages is None:
-            self._messages = pandas.read_csv('stimuli/messages.csv')
-            # Select only those messages with the correct message type
-            selected = self._messages.word_type == self.word_type
-            self._messages = self._messages.ix[selected].reset_index(drop=True)
-        return self._messages
-
-    @property
     def trials(self):
         """Trials generated for an individual participant."""
         if self._trials is None:
@@ -229,10 +219,7 @@ class Trials(object):
         There are 4 categories of 4 seed messages to divide among
         4 blocks, as each block has a single seed from each category.
         """
-        seeds = (self.messages[['seed_id', 'category']]
-                     .drop_duplicates()
-                     .rename(columns={'seed_id': 'sound_id',
-                                      'category': 'sound_category'}))
+        sounds = pandas.read_csv('stimuli/sounds.csv')
 
         block_ixs = [1, 2, 3, 4]
         def assign_block(chunk):
@@ -240,10 +227,10 @@ class Trials(object):
             chunk.insert(0, 'block_ix', ix)
             return chunk
 
-        return (seeds.groupby('sound_category')
-                     .apply(assign_block)
-                     .sort_values(['block_ix', 'sound_category', 'sound_id'])
-                     .reset_index(drop=True))
+        return (sounds.groupby('sound_category')
+                      .apply(assign_block)
+                      .sort_values(['block_ix', 'sound_category', 'sound_id'])
+                      .reset_index(drop=True))
 
     def assign_words(self):
         """Assign a single word to learn for each category.
@@ -251,10 +238,15 @@ class Trials(object):
         Each participant learns the meaning of 4 different words,
         one for each category, over the course of 4 blocks of trials.
         """
-        return (self.messages.rename(columns={'category': 'word_category'})
-                    .groupby('word_category')
-                    .apply(lambda x: x.sample(1, random_state=self.random))
-                    .reset_index(drop=True))
+        words = pandas.read_csv('stimuli/words.csv')
+
+        # Select only those messages with the correct message type
+        is_selected = words.word_type == self.word_type
+
+        return (words.ix[is_selected]
+                     .groupby('word_category')
+                     .apply(lambda x: x.sample(1, random_state=self.random))
+                     .reset_index(drop=True))
 
     def generate_trials(self, blocks, words):
         """Generate correct and incorrect response trials for each block."""

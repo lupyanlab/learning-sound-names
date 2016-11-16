@@ -28,11 +28,9 @@ WORD_TYPES = {1: 'sound_effect',
 
 
 class Experiment(object):
-    fix_sec = 0.5
-    post_fix_sec = 0.5
-    delay_sec = 1.0
-    word_sec = 0.6
-    feedback_sec = 0.5
+    pre_sound_delay_sec = 0.5
+    post_sound_delay_sec = 1.0
+    feedback_sec = 0.2
     iti_sec = 1.0   # Inter trial interval
     quit_allowed = True
     survey_url = 'https://docs.google.com/forms/d/e/1FAIpQLSdw_9mEj3FcToSTz7Sxv8o_Wf_S5yRjPPVZrF8RCzo8SXPj4A/viewform?entry.214853107={subj_id}&entry.497668873={computer}'
@@ -45,8 +43,10 @@ class Experiment(object):
         self.trials = Trials(**subject)
         self.load_sounds('stimuli/sounds')
         self.feedback = {}
-        self.feedback['audio'] = {0: sound.Sound('stimuli/feedback/incorrect.wav'),
-                                  1: sound.Sound('stimuli/feedback/correct.wav')}
+        self.feedback['audio'] = {
+            0: sound.Sound('stimuli/feedback/incorrect.wav'),
+            1: sound.Sound('stimuli/feedback/correct.wav'),
+        }
         self.texts = yaml.load(open('texts.yaml'))
         self.device = ResponseDevice(gamepad={0: 1, 3: 0},
                                      keyboard={'y': 1, 'n': 0})
@@ -90,8 +90,6 @@ class Experiment(object):
         text_kwargs = dict(win=self.win, height=50, font='Consolas',
                            color='black')
         self.word = visual.TextStim(**text_kwargs)
-        self.fix = visual.TextStim(text='+', **text_kwargs)
-        self.prompt = visual.TextStim(text='?', **text_kwargs)
 
         self.icon = visual.ImageStim(self.win, 'stimuli/speaker_icon.png',
                                      size=[100, 100])
@@ -113,13 +111,8 @@ class Experiment(object):
         sound_sec = self.sounds[trial.sound_id].getDuration()
 
         # Start trial
-        self.fix.draw()
         self.win.flip()
-        core.wait(self.fix_sec)
-
-        # Delay before start of sound
-        self.win.flip()
-        core.wait(self.post_fix_sec)
+        core.wait(self.pre_sound_delay_sec)
 
         # Play sound
         self.icon.draw()
@@ -129,29 +122,22 @@ class Experiment(object):
 
         # Delay between sound offset and word onset
         self.win.flip()
-        core.wait(self.delay_sec)
+        core.wait(self.post_sound_delay_sec)
 
-        # Flash word
+        # Show word and get response
         self.word.draw()
-        self.win.flip()
-        core.wait(self.word_sec)
-
-        # Get response
-        self.prompt.draw()
         self.win.flip()
         response = self.device.get_response()
 
         # Evaluate response
         is_correct = response['response'] == trial.correct_response
-        response['is_correct'] = is_correct
-
-        # Show feedback
         self.feedback['audio'][is_correct].play()
         self.feedback['visual'][is_correct].draw()
         self.win.flip()
         core.wait(self.feedback_sec)
 
         # End trial
+        response['is_correct'] = is_correct
         response.update(trial._asdict())  # combine response and trial data
         self.write_trial(**response)
 

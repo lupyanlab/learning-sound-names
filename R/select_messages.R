@@ -159,9 +159,19 @@ ggplot(available_means, aes(x = message_label, y = is_correct)) +
 
 final <- available_means %>%
   filter(is_selected == 1) %>%
-  rename(category = word_category, word_type = message_type) %>%
-  select(category, seed_id, word_type, word) %>%
+  rename(word_type = message_type) %>%
+  select(word_category, seed_id, word_type, word) %>%
   unique %>%
-  arrange(message_type, category, seed_id)
+  arrange(word_type, word_category, seed_id)
 
-write.csv(final, "stimuli/messages.csv", row.names = FALSE)
+write.csv(final, "stimuli/words.csv", row.names = FALSE)
+
+# Some seeds didn't have any transcriptions that were eligible,
+# so create a csv of all seeds.
+
+all_seeds <- transcription_matches %>%
+  select(sound_category = word_category, sound_id = seed_id) %>%
+  unique %>%
+  arrange(sound_category, sound_id)
+
+write.csv(all_seeds, "stimuli/sounds.csv", row.names = FALSE)

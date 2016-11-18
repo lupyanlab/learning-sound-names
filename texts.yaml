@@ -4,7 +4,7 @@ instructions: |
 
   In the experiment you'll learn which names go with which sounds through trial and error. On each trial you will hear one of the sounds and then you'll see a word for it, and you have to decide whether the word is the correct word. If it is, you'll press the {yes_key} on the {device}. If it's not the right word, press the {no_key}.
 
-  At first you will have to guess which words go with which sounds, but since you'll be getting feedback on your performance, you should be able to learn the correct names for the sounds pretty quickly. If you guess correctly you'll hear a 'beep'. If you guess incorrectly you'll hear a 'buzz'.
+  At first you will have to guess which words go with which sounds, but since you'll be getting feedback on your performance, you should be able to learn the correct names for the sounds pretty quickly. If you guess correctly you'll see a green checkmark. If you guess incorrectly you'll see a red 'X'.
 
   If you have any questions, now is the time to ask the experimenter. When you feel you understand these instructions and are ready to begin, press the {continue_key}.
 break: |

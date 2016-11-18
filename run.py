@@ -28,9 +28,9 @@ WORD_TYPES = {1: 'sound_effect',
 
 
 class Experiment(object):
-    fix_sec = 0.5
-    delay_sec = 1.0
-    word_sec = 1.0
+    pre_sound_delay_sec = 0.5
+    post_sound_delay_sec = 1.0
+    feedback_sec = 0.2
     iti_sec = 1.0   # Inter trial interval
     quit_allowed = True
     survey_url = 'https://docs.google.com/forms/d/e/1FAIpQLSdw_9mEj3FcToSTz7Sxv8o_Wf_S5yRjPPVZrF8RCzo8SXPj4A/viewform?entry.214853107={subj_id}&entry.497668873={computer}'
@@ -42,11 +42,14 @@ class Experiment(object):
 
         self.trials = Trials(**subject)
         self.load_sounds('stimuli/sounds')
-        self.feedback = {0: sound.Sound('stimuli/feedback/buzz.wav'),
-                         1: sound.Sound('stimuli/feedback/bleep.wav')}
+        self.feedback = {}
+        self.feedback['audio'] = {
+            0: sound.Sound('stimuli/feedback/incorrect.wav'),
+            1: sound.Sound('stimuli/feedback/correct.wav'),
+        }
         self.texts = yaml.load(open('texts.yaml'))
-        self.device = ResponseDevice(gamepad=None,
-                                     keyboard=dict(y=1, n=0))
+        self.device = ResponseDevice(gamepad={0: 1, 3: 0},
+                                     keyboard={'y': 1, 'n': 0})
 
         data_dir = Path(DATA_FILE.format(**subject)).parent
         if not data_dir.isdir():
@@ -82,16 +85,20 @@ class Experiment(object):
         core.quit()
 
     def setup_window(self):
-        self.win = visual.Window(fullscr=True, units='pix', allowGUI=False)
+        self.win = visual.Window(fullscr=True, units='pix', allowGUI=False, winType='pyglet')
 
         text_kwargs = dict(win=self.win, height=50, font='Consolas',
                            color='black')
         self.word = visual.TextStim(**text_kwargs)
-        self.fix = visual.TextStim(text='+', **text_kwargs)
-        self.prompt = visual.TextStim(text='?', **text_kwargs)
 
         self.icon = visual.ImageStim(self.win, 'stimuli/speaker_icon.png',
                                      size=[100, 100])
+
+        feedback_kwargs = dict(win=self.win, size=[100, 100])
+        self.feedback['visual'] = {
+            0: visual.ImageStim(image='stimuli/feedback/incorrect.png', **feedback_kwargs),
+            1: visual.ImageStim(image='stimuli/feedback/correct.png', **feedback_kwargs)
+         }
 
     def run_block(self, block):
         """Run a block of trials."""
@@ -104,9 +111,8 @@ class Experiment(object):
         sound_sec = self.sounds[trial.sound_id].getDuration()
 
         # Start trial
-        self.fix.draw()
         self.win.flip()
-        core.wait(self.fix_sec)
+        core.wait(self.pre_sound_delay_sec)
 
         # Play sound
         self.icon.draw()
@@ -116,25 +122,22 @@ class Experiment(object):
 
         # Delay between sound offset and word onset
         self.win.flip()
-        core.wait(self.delay_sec)
+        core.wait(self.post_sound_delay_sec)
 
-        # Flash word
+        # Show word and get response
         self.word.draw()
-        self.win.flip()
-        core.wait(self.word_sec)
-
-        # Get response
-        self.prompt.draw()
         self.win.flip()
         response = self.device.get_response()
 
         # Evaluate response
         is_correct = response['response'] == trial.correct_response
-        self.feedback[is_correct].play()
-        response['is_correct'] = is_correct
+        self.feedback['audio'][is_correct].play()
+        self.feedback['visual'][is_correct].draw()
+        self.win.flip()
+        core.wait(self.feedback_sec)
 
         # End trial
-        self.win.flip()
+        response['is_correct'] = is_correct
         response.update(trial._asdict())  # combine response and trial data
         self.write_trial(**response)
 
@@ -164,10 +167,9 @@ class Experiment(object):
                         pos=[0, title_y-gap],
                         **text_kwargs).draw()
         self.win.flip()
-        response = event.waitKeys()[0]
 
-        if response == 'q' and self.quit_allowed:
-            raise QuitExperiment
+        response = self.device.get_response()
+        print response
 
     def write_trial(self, **trial_data):
         data = self.session.copy()
@@ -205,16 +207,6 @@ class Trials(object):
         self._trials = None
 
     @property
-    def messages(self):
-        """All eligible messages that could be tested in this experiment."""
-        if self._messages is None:
-            self._messages = pandas.read_csv('stimuli/messages.csv')
-            # Select only those messages with the correct message type
-            selected = self._messages.word_type == self.word_type
-            self._messages = self._messages.ix[selected].reset_index(drop=True)
-        return self._messages
-
-    @property
     def trials(self):
         """Trials generated for an individual participant."""
         if self._trials is None:
@@ -229,10 +221,7 @@ class Trials(object):
         There are 4 categories of 4 seed messages to divide among
         4 blocks, as each block has a single seed from each category.
         """
-        seeds = (self.messages[['seed_id', 'category']]
-                     .drop_duplicates()
-                     .rename(columns={'seed_id': 'sound_id',
-                                      'category': 'sound_category'}))
+        sounds = pandas.read_csv('stimuli/sounds.csv')
 
         block_ixs = [1, 2, 3, 4]
         def assign_block(chunk):
@@ -240,10 +229,10 @@ class Trials(object):
             chunk.insert(0, 'block_ix', ix)
             return chunk
 
-        return (seeds.groupby('sound_category')
-                     .apply(assign_block)
-                     .sort_values(['block_ix', 'sound_category', 'sound_id'])
-                     .reset_index(drop=True))
+        return (sounds.groupby('sound_category')
+                      .apply(assign_block)
+                      .sort_values(['block_ix', 'sound_category', 'sound_id'])
+                      .reset_index(drop=True))
 
     def assign_words(self):
         """Assign a single word to learn for each category.
@@ -251,10 +240,15 @@ class Trials(object):
         Each participant learns the meaning of 4 different words,
         one for each category, over the course of 4 blocks of trials.
         """
-        return (self.messages.rename(columns={'category': 'word_category'})
-                    .groupby('word_category')
-                    .apply(lambda x: x.sample(1, random_state=self.random))
-                    .reset_index(drop=True))
+        words = pandas.read_csv('stimuli/words.csv')
+
+        # Select only those messages with the correct message type
+        is_selected = words.word_type == self.word_type
+
+        return (words.ix[is_selected]
+                     .groupby('word_category')
+                     .apply(lambda x: x.sample(1, random_state=self.random))
+                     .reset_index(drop=True))
 
     def generate_trials(self, blocks, words):
         """Generate correct and incorrect response trials for each block."""
@@ -308,7 +302,7 @@ class ResponseDevice(object):
     a gamepad cannot be found, it will fall back to using the keyboard.
     Response data is provided as a dict.
 
-    >>> device = ResponseDevice(gamepad={6: 'yes', 7: 'no'},
+    >>> device = ResponseDevice(gamepad={0: 'yes', 3: 'no'},
                                 keyboard={'y': 'yes', 'n': 'no'})
     >>> device.get_response()  # tries to use gamepad, otherwise uses keyboard
     {'rt': 1323, 'response': 'yes'}
@@ -329,6 +323,7 @@ class ResponseDevice(object):
                 no_key='red button',
                 continue_key='green button',
             )
+            pygame.init()
         except:
             print 'unable to init joystick with pygame'
             self.stick = None
@@ -502,9 +497,9 @@ def get_subj_info(gui_yaml, data_file_fmt):
 
 
 def popup_error(text):
-	errorDlg = gui.Dlg(title="Error", pos=(200,400))
-	errorDlg.addText('Error: '+text, color='Red')
-	errorDlg.show()
+    errorDlg = gui.Dlg(title="Error", pos=(200,400))
+    errorDlg.addText('Error: '+text, color='Red')
+    errorDlg.show()
 
 
 if __name__ == '__main__':

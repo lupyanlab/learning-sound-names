@@ -1,0 +1,28 @@
+18,LSN - Instructions (last updated on 11/16 by Pierce),,,,,,,,
+learning-sound-names/run.py,"LSN stands for Learning Sound Names. In this study, participants learn the meaning of some new words. The participants will learn that each word is associated with a particular category of sounds. They are not given instructions about the word meanings, so they have to learn through trial and error. This should be emphasized to the participants: they supposed to learn the meanings of the words by guessing and then getting feedback on their answers. At the end of the experiment, a survey will pop up asking them about the experiment.
+
+This is a short experiment, and even with the survey it should only take about 15 minutes for participants to complete.
+
+The green columns are the ones that need to be entered in the pop up box that opens when you start the experiment. The experiment is located in the Dropbox at learning-sound-names/run.py",,,,,,,click here for TLT Subject Info Sheet,https://docs.google.com/spreadsheets/d/1KNe0xJR1g2DSy5TFg-4UGeiAvugueOclLCkTNIEkdAo/edit#gid=0
+Exp,SubjID,Seed,word type n,Room,Date,Initials,Compliance,Notes,
+LSN_V1,LSN101,101,1,Elaine,11/16/16,PE,5,,
+LSN_V1,LSN102,102,2,Kramer,11/21/16,SW,5,,
+LSN_V1,LSN103,103,3,George ,11/22/16,SW,5,,
+LSN_V1,LSN104,104,1,George ,11/23/16,SW,5,,
+LSN_V1,LSN105,105,2,Elaine,11/24/16,SW,5,,
+LSN_V1,LSN106,106,3,Jerry,11/25/16,SW,5,,
+LSN_V1,LSN107,107,1,Kramer,11/26/16,SW,5,,
+LSN_V1,LSN108,108,2,Kramer,11/22/16,HS,5,,
+LSN_V1,LSN109,109,3,George ,11/22/16,HS,5,,
+LSN_V1,LSN110,110,1,,,,,,
+LSN_V1,LSN111,111,2,Jerry,11/22/16,HS,5,,
+LSN_V1,LSN112,112,3,,,,,,
+LSN_V1,LSN113,113,1,,,,,,
+LSN_V1,LSN114,114,2,Kramer,11/22/16,HS,4,"Looked sleepy, slapped his face a bit (assuming to wake himself up)",
+LSN_V1,LSN115,115,3,Elaine,11/22/16,HS,5,,
+LSN_V1,LSN116,116,1,Jerry,11/22/16,HS,5,,
+LSN_V1,LSN117,117,2,Kramer,11/22/16,HS,5,,
+LSN_V1,LSN118,118,3,George,11/22/16,HS,5,,
+LSN_V1,LSN119,119,1,Elaine,11/22/16,HS,5,,
+LSN_V1,LSN120,120,2,Jerry,11/22/16,HS,5,,
+LSN_V1,LSN121,121,3,Kramer,11/22/16,HS,5,,

@@ -1,0 +1,97 @@
+subj_id,date,experimenter,computer,block_ix,trial_ix,sound_id,word,sound_category,word_category,word_type,correct_response,response,rt,is_correct
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,1,43,da da da,water,glass,last_gen_imitation,0,0,3881.44967426,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,2,38,da da da,tear,glass,last_gen_imitation,0,1,2501.91156007,False
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,3,48,eaverlusha,zipper,water,last_gen_imitation,0,0,2427.80692363,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,4,48,eaverlusha,zipper,water,last_gen_imitation,0,0,1674.79698453,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,5,43,eaverlusha,water,water,last_gen_imitation,1,1,748.839844484,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,6,35,da da da,glass,glass,last_gen_imitation,1,1,2831.81281295,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,7,48,eaverlusha,zipper,water,last_gen_imitation,0,0,1593.38187985,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,8,35,da da da,glass,glass,last_gen_imitation,1,1,456.067730207,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,9,38,da da da,tear,glass,last_gen_imitation,0,0,1937.10289197,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,10,48,da da da,zipper,glass,last_gen_imitation,0,0,1156.57858923,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,11,38,cheecheea,tear,tear,last_gen_imitation,1,1,1956.05620742,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,12,43,eaverlusha,water,water,last_gen_imitation,1,1,621.053086594,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,13,35,da da da,glass,glass,last_gen_imitation,1,1,564.838756341,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,14,48,bizz,zipper,zipper,last_gen_imitation,1,1,1342.0325527,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,15,48,bizz,zipper,zipper,last_gen_imitation,1,1,480.883440003,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,16,38,cheecheea,tear,tear,last_gen_imitation,1,1,558.442136273,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,17,43,eaverlusha,water,water,last_gen_imitation,1,1,1335.08282248,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,18,35,da da da,glass,glass,last_gen_imitation,1,1,538.299697451,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,19,38,eaverlusha,tear,water,last_gen_imitation,0,0,881.866107695,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,20,43,eaverlusha,water,water,last_gen_imitation,1,1,473.751900252,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,21,43,eaverlusha,water,water,last_gen_imitation,1,1,1317.29974551,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,22,35,da da da,glass,glass,last_gen_imitation,1,1,489.539874718,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,23,35,cheecheea,glass,tear,last_gen_imitation,0,0,657.652481459,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,1,24,38,cheecheea,tear,tear,last_gen_imitation,1,1,597.774754744,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,25,34,eaverlusha,glass,water,last_gen_imitation,0,0,1276.19192423,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,26,45,da da da,water,glass,last_gen_imitation,0,0,734.826433007,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,27,34,bizz,glass,zipper,last_gen_imitation,0,0,695.216938853,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,28,34,da da da,glass,glass,last_gen_imitation,1,1,567.599187139,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,29,47,da da da,zipper,glass,last_gen_imitation,0,0,580.276554916,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,30,47,bizz,zipper,zipper,last_gen_imitation,1,1,570.205015596,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,31,47,bizz,zipper,zipper,last_gen_imitation,1,1,451.853143983,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,32,45,eaverlusha,water,water,last_gen_imitation,1,1,926.09637836,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,33,45,cheecheea,water,tear,last_gen_imitation,0,0,544.856681023,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,34,39,cheecheea,tear,tear,last_gen_imitation,1,1,369.832754601,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,35,34,eaverlusha,glass,water,last_gen_imitation,0,0,765.218059067,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,36,47,bizz,zipper,zipper,last_gen_imitation,1,1,435.826384928,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,37,34,cheecheea,glass,tear,last_gen_imitation,0,0,804.32149535,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,38,39,da da da,tear,glass,last_gen_imitation,0,0,1045.75580591,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,39,39,bizz,tear,zipper,last_gen_imitation,0,1,1394.78418091,False
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,40,45,cheecheea,water,tear,last_gen_imitation,0,0,659.669990186,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,41,45,bizz,water,zipper,last_gen_imitation,0,0,605.425796006,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,42,39,cheecheea,tear,tear,last_gen_imitation,1,1,516.399020329,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,43,47,cheecheea,zipper,tear,last_gen_imitation,0,0,618.315381929,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,44,39,cheecheea,tear,tear,last_gen_imitation,1,1,472.956163809,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,45,47,cheecheea,zipper,tear,last_gen_imitation,0,0,666.29739292,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,46,39,eaverlusha,tear,water,last_gen_imitation,0,0,656.707584392,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,47,34,da da da,glass,glass,last_gen_imitation,1,1,650.424275547,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,2,48,45,bizz,water,zipper,last_gen_imitation,0,0,775.272634346,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,49,37,da da da,glass,glass,last_gen_imitation,1,0,731.827537064,False
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,50,42,eaverlusha,water,water,last_gen_imitation,1,1,1202.57574087,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,51,49,eaverlusha,zipper,water,last_gen_imitation,0,0,2324.69183626,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,52,37,cheecheea,glass,tear,last_gen_imitation,0,0,740.680825431,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,53,37,bizz,glass,zipper,last_gen_imitation,0,0,786.535537336,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,54,40,cheecheea,tear,tear,last_gen_imitation,1,1,420.156202279,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,55,49,bizz,zipper,zipper,last_gen_imitation,1,1,386.783285066,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,56,49,eaverlusha,zipper,water,last_gen_imitation,0,0,821.528095752,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,57,42,bizz,water,zipper,last_gen_imitation,0,0,564.40951908,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,58,40,cheecheea,tear,tear,last_gen_imitation,1,1,982.806843705,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,59,42,eaverlusha,water,water,last_gen_imitation,1,1,614.490341395,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,60,37,da da da,glass,glass,last_gen_imitation,1,1,450.429396704,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,61,37,da da da,glass,glass,last_gen_imitation,1,1,500.686586834,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,62,49,bizz,zipper,zipper,last_gen_imitation,1,1,1464.40599859,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,63,42,cheecheea,water,tear,last_gen_imitation,0,0,583.626266103,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,64,49,bizz,zipper,zipper,last_gen_imitation,1,1,565.320807043,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,65,40,cheecheea,tear,tear,last_gen_imitation,1,1,1186.12710619,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,66,42,eaverlusha,water,water,last_gen_imitation,1,1,393.054110929,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,67,40,cheecheea,tear,tear,last_gen_imitation,1,1,2053.74421831,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,68,42,eaverlusha,water,water,last_gen_imitation,1,1,611.121745314,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,69,40,eaverlusha,tear,water,last_gen_imitation,0,0,1448.70860875,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,70,49,eaverlusha,zipper,water,last_gen_imitation,0,0,1357.89862834,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,71,37,da da da,glass,glass,last_gen_imitation,1,1,345.524062403,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,3,72,40,eaverlusha,tear,water,last_gen_imitation,0,0,737.932877615,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,73,36,eaverlusha,glass,water,last_gen_imitation,0,0,1411.96837556,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,74,44,eaverlusha,water,water,last_gen_imitation,1,1,483.276731335,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,75,46,bizz,zipper,zipper,last_gen_imitation,1,1,722.641038243,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,76,46,bizz,zipper,zipper,last_gen_imitation,1,1,511.246579234,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,77,44,da da da,water,glass,last_gen_imitation,0,0,904.451771174,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,78,46,bizz,zipper,zipper,last_gen_imitation,1,1,396.07957378,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,79,41,bizz,tear,zipper,last_gen_imitation,0,0,632.963206153,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,80,41,da da da,tear,glass,last_gen_imitation,0,0,689.315814059,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,81,44,da da da,water,glass,last_gen_imitation,0,0,607.949362136,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,82,41,da da da,tear,glass,last_gen_imitation,0,0,521.640126128,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,83,46,eaverlusha,zipper,water,last_gen_imitation,0,0,718.405646272,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,84,41,cheecheea,tear,tear,last_gen_imitation,1,1,673.597618472,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,85,46,bizz,zipper,zipper,last_gen_imitation,1,1,464.445048943,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,86,36,da da da,glass,glass,last_gen_imitation,1,1,443.232559133,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,87,36,da da da,glass,glass,last_gen_imitation,1,1,390.657299198,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,88,36,eaverlusha,glass,water,last_gen_imitation,0,0,486.631563865,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,89,41,cheecheea,tear,tear,last_gen_imitation,1,1,418.331386056,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,90,44,eaverlusha,water,water,last_gen_imitation,1,1,564.522510394,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,91,44,eaverlusha,water,water,last_gen_imitation,1,1,599.740729202,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,92,46,da da da,zipper,glass,last_gen_imitation,0,0,628.761102911,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,93,41,bizz,tear,zipper,last_gen_imitation,0,0,1461.53993905,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,94,44,eaverlusha,water,water,last_gen_imitation,1,1,611.116943881,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,95,36,bizz,glass,zipper,last_gen_imitation,0,0,594.382151961,True
+LSN115,2016_Nov_22_1553,,LL-ELAINE,4,96,36,da da da,glass,glass,last_gen_imitation,1,1,357.181312982,True

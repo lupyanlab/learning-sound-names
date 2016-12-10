@@ -1,0 +1,97 @@
+subj_id,date,experimenter,computer,block_ix,trial_ix,sound_id,word,sound_category,word_category,word_type,correct_response,response,rt,is_correct
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,1,40,schoo,tear,tear,last_gen_imitation,1,0,2368.18410223,False
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,2,45,schoo,water,tear,last_gen_imitation,0,0,1524.99511838,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,3,45,eaverlusha,water,water,last_gen_imitation,1,1,465.788235422,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,4,34,da da da,glass,glass,last_gen_imitation,1,1,1195.39807877,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,5,40,schoo,tear,tear,last_gen_imitation,1,1,718.96495996,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,6,45,eaverlusha,water,water,last_gen_imitation,1,1,534.580187406,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,7,34,schoo,glass,tear,last_gen_imitation,0,0,1178.81650245,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,8,40,schoo,tear,tear,last_gen_imitation,1,1,1139.82420694,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,9,48,bizz,zipper,zipper,last_gen_imitation,1,1,846.283285413,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,10,45,da da da,water,glass,last_gen_imitation,0,0,1565.45886351,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,11,34,da da da,glass,glass,last_gen_imitation,1,1,507.894037757,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,12,34,bizz,glass,zipper,last_gen_imitation,0,0,697.922941763,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,13,48,eaverlusha,zipper,water,last_gen_imitation,0,0,964.502117597,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,14,48,da da da,zipper,glass,last_gen_imitation,0,0,901.499617379,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,15,34,eaverlusha,glass,water,last_gen_imitation,0,0,1405.44375544,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,16,45,eaverlusha,water,water,last_gen_imitation,1,1,526.895487681,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,17,48,bizz,zipper,zipper,last_gen_imitation,1,1,1242.15573631,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,18,48,bizz,zipper,zipper,last_gen_imitation,1,1,464.392646682,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,19,48,eaverlusha,zipper,water,last_gen_imitation,0,0,400.267594494,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,20,40,schoo,tear,tear,last_gen_imitation,1,1,752.608886454,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,21,45,eaverlusha,water,water,last_gen_imitation,1,0,2429.57303347,False
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,22,40,eaverlusha,tear,water,last_gen_imitation,0,0,855.312998872,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,23,34,da da da,glass,glass,last_gen_imitation,1,1,1512.94248318,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,1,24,40,schoo,tear,tear,last_gen_imitation,1,1,5695.40095981,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,25,47,bizz,zipper,zipper,last_gen_imitation,1,0,871.797588654,False
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,26,44,bizz,water,zipper,last_gen_imitation,0,0,1967.07051247,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,27,35,schoo,glass,tear,last_gen_imitation,0,0,840.907388832,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,28,41,schoo,tear,tear,last_gen_imitation,1,1,645.781705622,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,29,44,eaverlusha,water,water,last_gen_imitation,1,1,373.639061116,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,30,35,da da da,glass,glass,last_gen_imitation,1,1,450.850637164,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,31,35,da da da,glass,glass,last_gen_imitation,1,1,409.076447133,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,32,44,da da da,water,glass,last_gen_imitation,0,0,605.910125654,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,33,41,bizz,tear,zipper,last_gen_imitation,0,1,2627.47228798,False
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,34,41,bizz,tear,zipper,last_gen_imitation,0,0,676.541949157,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,35,41,eaverlusha,tear,water,last_gen_imitation,0,0,754.869996104,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,36,47,bizz,zipper,zipper,last_gen_imitation,1,1,802.195170894,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,37,44,schoo,water,tear,last_gen_imitation,0,0,942.529920023,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,38,35,da da da,glass,glass,last_gen_imitation,1,1,2758.72162823,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,39,41,schoo,tear,tear,last_gen_imitation,1,1,1026.20121464,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,40,41,bizz,tear,zipper,last_gen_imitation,0,0,889.575337991,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,41,47,bizz,zipper,zipper,last_gen_imitation,1,1,474.151523784,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,42,35,da da da,glass,glass,last_gen_imitation,1,1,839.780994691,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,43,47,schoo,zipper,tear,last_gen_imitation,0,1,1549.69831603,False
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,44,47,bizz,zipper,zipper,last_gen_imitation,1,0,600.155243184,False
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,45,47,eaverlusha,zipper,water,last_gen_imitation,0,0,768.957757857,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,46,44,bizz,water,zipper,last_gen_imitation,0,0,618.390079588,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,47,35,da da da,glass,glass,last_gen_imitation,1,1,407.721189782,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,2,48,44,eaverlusha,water,water,last_gen_imitation,1,1,473.160207737,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,49,49,eaverlusha,zipper,water,last_gen_imitation,0,0,747.688796371,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,50,38,eaverlusha,tear,water,last_gen_imitation,0,0,665.257207584,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,51,43,eaverlusha,water,water,last_gen_imitation,1,1,434.170473367,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,52,49,bizz,zipper,zipper,last_gen_imitation,1,1,648.130839691,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,53,43,da da da,water,glass,last_gen_imitation,0,0,559.095172212,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,54,43,schoo,water,tear,last_gen_imitation,0,0,588.196073659,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,55,38,schoo,tear,tear,last_gen_imitation,1,1,450.593605172,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,56,43,eaverlusha,water,water,last_gen_imitation,1,1,366.590058897,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,57,37,da da da,glass,glass,last_gen_imitation,1,1,379.992830101,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,58,37,bizz,glass,zipper,last_gen_imitation,0,0,523.095389828,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,59,43,bizz,water,zipper,last_gen_imitation,0,0,592.444936745,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,60,49,bizz,zipper,zipper,last_gen_imitation,1,1,1228.39766555,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,61,38,bizz,tear,zipper,last_gen_imitation,0,0,614.759949036,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,62,43,eaverlusha,water,water,last_gen_imitation,1,1,424.567159731,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,63,49,bizz,zipper,zipper,last_gen_imitation,1,1,413.030827884,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,64,37,schoo,glass,tear,last_gen_imitation,0,0,562.705136836,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,65,38,eaverlusha,tear,water,last_gen_imitation,0,0,1388.80776428,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,66,49,bizz,zipper,zipper,last_gen_imitation,1,1,457.22233085,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,67,49,bizz,zipper,zipper,last_gen_imitation,1,1,646.345382556,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,68,38,bizz,tear,zipper,last_gen_imitation,0,0,791.428653523,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,69,37,schoo,glass,tear,last_gen_imitation,0,0,934.042757377,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,70,37,bizz,glass,zipper,last_gen_imitation,0,0,924.529708922,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,71,37,da da da,glass,glass,last_gen_imitation,1,1,1056.20444706,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,3,72,38,bizz,tear,zipper,last_gen_imitation,0,0,1794.06426754,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,73,39,eaverlusha,tear,water,last_gen_imitation,0,0,875.91169402,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,74,36,bizz,glass,zipper,last_gen_imitation,0,0,1709.83505808,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,75,39,bizz,tear,zipper,last_gen_imitation,0,0,698.290403932,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,76,46,schoo,zipper,tear,last_gen_imitation,0,0,487.576061394,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,77,39,schoo,tear,tear,last_gen_imitation,1,1,1346.92186303,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,78,39,eaverlusha,tear,water,last_gen_imitation,0,0,632.970458828,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,79,46,bizz,zipper,zipper,last_gen_imitation,1,1,1185.62895898,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,80,36,da da da,glass,glass,last_gen_imitation,1,1,463.302743621,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,81,46,bizz,zipper,zipper,last_gen_imitation,1,1,407.694622409,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,82,36,da da da,glass,glass,last_gen_imitation,1,1,499.270837288,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,83,42,eaverlusha,water,water,last_gen_imitation,1,1,413.794880267,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,84,46,eaverlusha,zipper,water,last_gen_imitation,0,0,583.913921844,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,85,39,eaverlusha,tear,water,last_gen_imitation,0,0,882.209126838,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,86,42,eaverlusha,water,water,last_gen_imitation,1,1,386.807526927,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,87,42,bizz,water,zipper,last_gen_imitation,0,0,493.561407551,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,88,46,schoo,zipper,tear,last_gen_imitation,0,0,1154.92921229,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,89,39,da da da,tear,glass,last_gen_imitation,0,0,702.714995947,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,90,36,da da da,glass,glass,last_gen_imitation,1,1,383.197882213,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,91,36,eaverlusha,glass,water,last_gen_imitation,0,0,422.872607596,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,92,42,eaverlusha,water,water,last_gen_imitation,1,1,418.877895456,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,93,36,da da da,glass,glass,last_gen_imitation,1,1,382.239215542,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,94,42,bizz,water,zipper,last_gen_imitation,0,0,1326.6192507,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,95,46,bizz,zipper,zipper,last_gen_imitation,1,1,360.075925477,True
+LSN157,2016_Dec_07_1235,,LL-Jerry,4,96,42,eaverlusha,water,water,last_gen_imitation,1,1,616.237801034,True
